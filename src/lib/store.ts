@@ -1,3 +1,4 @@
+
 import { create } from 'zustand';
 
 export interface QuizQuestion {
@@ -30,6 +31,8 @@ export const initialQuestions: QuizQuestion[] = [
   { id: 1, text: "Forge with Precision or Unleash the Unpredictable?" },
   { id: 2, text: "Calculated Order or Evolving Complexity?" },
   { id: 3, text: "Structured Design or Emergent Phenomena?" },
+  { id: 4, text: "Seek Absolute Control or Embrace Adaptability?" },
+  { id: 5, text: "Follow Defined Protocols or Explore Radical Deviations?" },
 ];
 
 export const useGameStore = create<GameState>((set, get) => ({
