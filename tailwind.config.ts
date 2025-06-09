@@ -10,9 +10,9 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Inter', 'sans-serif'],
-        headline: ['Inter', 'sans-serif'],
-        code: ['monospace'],
+        body: ['VT323', 'monospace'],
+        headline: ['VT323', 'monospace'],
+        code: ['VT323', 'monospace'],
       },
       colors: {
         background: 'hsl(var(--background))',
@@ -88,10 +88,32 @@ export default {
             height: '0',
           },
         },
+        'scanline-anim': { /* Defined in globals.css */
+          '0%': { backgroundPosition: '0 0' },
+          '100%': { backgroundPosition: '0 100vh' },
+        },
+        'flicker-anim': { /* Defined in globals.css */
+          '0%': { opacity: '0.05' },
+          '20%': { opacity: '0.01' },
+          '40%': { opacity: '0.08' },
+          '60%': { opacity: '0.02' },
+          '80%': { opacity: '0.1' },
+          '100%': { opacity: '0.03' },
+        },
+         'glitch-subtle': {
+          '0%': { transform: 'translate(0, 0)', opacity: '1' },
+          '25%': { transform: 'translate(2px, -2px)', opacity: '0.8' },
+          '50%': { transform: 'translate(-2px, 2px)', opacity: '1' },
+          '75%': { transform: 'translate(1px, -1px)', opacity: '0.9' },
+          '100%': { transform: 'translate(0, 0)', opacity: '1' },
+        }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'scanline-anim': 'scanline-anim 20s linear infinite',
+        'flicker-anim': 'flicker-anim 0.15s infinite alternate',
+        'glitch-subtle': 'glitch-subtle 0.5s ease-in-out',
       },
     },
   },
