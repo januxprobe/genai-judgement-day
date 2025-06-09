@@ -85,9 +85,10 @@ export const useGameStore = create<GameState>((set, get) => ({
     originalImage: null,
     transformedImage: null,
     currentQuestionIndex: 0,
-    questions: [], 
+    questions: initialQuestions, // Reset questions to initialQuestions
     answers: [],
     summary: null,
+    title: "Your Judgment", // Reset title
     isLoading: false,
     error: null,
   }),
@@ -96,3 +97,4 @@ export const useGameStore = create<GameState>((set, get) => ({
     return state.questions[state.currentQuestionIndex];
   },
 }));
+
