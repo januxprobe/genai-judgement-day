@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -24,10 +25,10 @@ const NeonButton = React.forwardRef<HTMLButtonElement, NeonButtonProps>(
           "transition-all duration-300 ease-in-out transform hover:scale-105",
           "disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none",
           !disabled && neonColor === 'primary' &&
-            `border-primary text-primary shadow-[0_0_5px_theme(colors.primary.DEFAULT),_0_0_${shadowIntensity}_theme(colors.primary.DEFAULT)_inset] 
+            `border-primary text-primary shadow-[0_0_${shadowIntensity}_theme(colors.primary.DEFAULT)] 
              hover:bg-primary hover:text-primary-foreground hover:shadow-[0_0_10px_theme(colors.primary.DEFAULT),_0_0_${hoverShadowIntensity}_theme(colors.primary.DEFAULT)]`,
           !disabled && neonColor === 'secondary' &&
-            `border-secondary text-secondary shadow-[0_0_5px_theme(colors.secondary.DEFAULT),_0_0_${shadowIntensity}_theme(colors.secondary.DEFAULT)_inset] 
+            `border-secondary text-secondary shadow-[0_0_${shadowIntensity}_theme(colors.secondary.DEFAULT)] 
              hover:bg-secondary hover:text-secondary-foreground hover:shadow-[0_0_10px_theme(colors.secondary.DEFAULT),_0_0_${hoverShadowIntensity}_theme(colors.secondary.DEFAULT)]`,
           disabled && "border-muted text-muted",
           className
