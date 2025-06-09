@@ -279,13 +279,6 @@ export default function QuizPage() {
       
       if (currentThemeDescription.includes("PASTE YOUR") || currentThemeDescription.trim() === "") {
         console.warn(`Warning: Placeholder text or empty description found for ${choice.toUpperCase()} theme, question ${currentQuestionIndex + 1}. AI might not use specific details for this step.`);
-        // Optional: Keep toast for placeholder, or remove if the above "Missing" toast is sufficient
-        // toast({
-        //     title: `Theme Description Placeholder (Q${currentQuestionIndex + 1})`,
-        //     description: `The pre-generated description for '${choice}' theme (image ${currentQuestionIndex + 1}) seems to be a placeholder or empty. Please update it in quiz/page.tsx for best results.`,
-        //     variant: "default",
-        //     duration: 7000,
-        // });
       }
 
 
@@ -336,7 +329,7 @@ export default function QuizPage() {
       <CrtOverlay className="fixed inset-0" />
       <div className="z-10 w-full max-w-4xl mx-auto flex flex-col items-center space-y-8">
         <h2 className="text-3xl md:text-4xl lg:text-5xl font-headline neon-text-primary text-center uppercase glitch-text" data-text={`QUESTION ${currentQuestionIndex + 1}/${questions.length}`}>
-          QUESTION {currentQuestionIndex + 1}/${questions.length}
+          QUESTION {currentQuestionIndex + 1}/{questions.length}
         </h2>
 
         <div className="relative w-full max-w-md aspect-[4/3] bg-black border-2 border-primary rounded-lg shadow-[0_0_15px_theme(colors.primary.DEFAULT)] overflow-hidden">
@@ -386,5 +379,3 @@ export default function QuizPage() {
     </main>
   );
 }
-
-    
