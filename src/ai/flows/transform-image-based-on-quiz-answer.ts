@@ -42,6 +42,7 @@ export async function transformImage(input: TransformImageInput): Promise<Transf
 
 // This prompt definition is kept for schema reference but not directly used by ai.generate
 // as the prompt parts are constructed dynamically for ai.generate.
+// The output schema is also defined for the flow's return type, but not forced on the image model.
 const prompt = ai.definePrompt({
   name: 'transformImagePrompt',
   input: {schema: TransformImageInputSchema},
@@ -135,7 +136,7 @@ const transformImageFlow = ai.defineFlow(
     promptParts.push({text: instructionText});
 
     const {media, text: modelGeneratedText} = await ai.generate({
-      model: 'googleai/gemini-2.0-flash-preview-image-generation', // Updated model
+      model: 'googleai/gemini-2.0-flash-preview-image-generation',
       prompt: promptParts,
       config: {
         responseModalities: ['TEXT', 'IMAGE'],
@@ -146,11 +147,11 @@ const transformImageFlow = ai.defineFlow(
           { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_LOW_AND_ABOVE' },
         ],
       },
-      output: { schema: TransformImageOutputSchema } // Requesting output in schema
+      // Removed: output: { schema: TransformImageOutputSchema } - This was causing the "JSON mode not enabled" error
     });
 
     let transformedPhotoDataUri = media?.url;
-    // Use the AI's description if available and seems reasonable, otherwise construct a default.
+    // Use the AI's description if available, otherwise construct a default.
     let transformationDescription = modelGeneratedText;
 
     if (!transformedPhotoDataUri) {
