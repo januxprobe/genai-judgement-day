@@ -1,8 +1,11 @@
 
 'use server';
 /**
- * @fileOverview Transforms a user's image based on their quiz answers, optionally using arrays of reference images for thematic inspiration.
- * The AI's task is to preserve the person in the user's photo and generate a new background behind them.
+ * @fileOverview Transforms a user's image based on their quiz answers.
+ * This flow now uses a two-step AI process:
+ * 1. If reference images are provided, they are first analyzed by a text model to generate a style description.
+ * 2. The user's photo and this style description (or a default theme description) are then used to guide an image generation model
+ *    to create a new background while preserving the user.
  *
  * - transformImage - A function that transforms the image based on quiz choices.
  * - TransformImageInput - The input type for the transformImage function.
@@ -48,67 +51,88 @@ const transformImageFlow = ai.defineFlow(
     outputSchema: TransformImageOutputSchema,
   },
   async input => {
-    const promptParts: ({text: string} | {media: {url: string}})[] = [];
-    let referenceImagesUsedDescription = "the chosen theme's general style";
+    let styleDescriptionFromReferences = "";
+    const referenceImageUris = input.choice === 'Code' ? input.codeReferenceImageUris : input.chaosReferenceImageUris;
+    const themeName = input.choice;
 
-    // --- Part 1: CORE INSTRUCTIONS ---
-    let coreInstructions = `**TASK: BACKGROUND REPLACEMENT FOR THE USER PHOTO**
+    // STEP 1: Analyze Reference Images to get a Style Description (if provided)
+    if (referenceImageUris && referenceImageUris.length > 0) {
+      const styleAnalysisPromptParts: ({text: string} | {media: {url: string}})[] = [];
+      styleAnalysisPromptParts.push({
+        text: `You are an expert art critic. Analyze the following images provided for the '${themeName}' theme.
+Describe their overall artistic style, mood, dominant colors, key visual elements (like shapes, patterns, textures), and any recurring motifs.
+Focus on descriptive terms that could guide an AI in generating a new, visually consistent background image.
+Be concise and focus on visual characteristics. For example: "A dark, gritty style with neon blue circuit patterns, sharp geometric shapes, and a sense of digital decay."
+Do not describe any people or specific objects in the reference images, only the overall style.
+Reference Images for '${themeName}':`
+      });
+      referenceImageUris.forEach(uri => styleAnalysisPromptParts.push({ media: {url: uri} }));
 
-You will be given a primary image called "THE USER PHOTO". This photo contains a person.
-Your goal is to:
-1.  **IDENTIFY and PRESERVE THE PERSON** in "THE USER PHOTO". This person, including their face, body, clothing, and pose, MUST remain completely unchanged, clear, and visible in the foreground. They are the main subject.
-2.  **REPLACE THE EXISTING BACKGROUND** of "THE USER PHOTO" with a new, A.I.-generated background.
-3.  This new A.I.-generated background should be inspired by the chosen theme for question #${input.questionNumber}: **${input.choice}**.
-    - If 'Code': The new background should feature clean, futuristic, structured elements in neon orange (hex #FF8C00). Think circuit patterns, glowing geometric shapes, or sleek digital interfaces.
-    - If 'Chaos': The new background should feature glitchy, abstract, aggressive elements in neon yellow (hex #04D9FF). Think distorted digital artifacts, chaotic energy lines, or fragmented light effects.
-4.  If "STYLE REFERENCE IMAGES" are provided later (after THE USER PHOTO), use their visual style, mood, colors, and textures as *additional inspiration* for the A.I.-generated background. **DO NOT copy people or large, distinct foreground objects from the STYLE REFERENCE IMAGES.** They are for style guidance only for the new background.
-
-**CRITICAL RULE: THE PERSON FROM "THE USER PHOTO" MUST NOT BE ALTERED, REPLACED, OR OBSCURED IN ANY WAY. Only their original background is to be replaced with a new A.I.-generated one.**
-`;
-    promptParts.push({ text: coreInstructions });
-
-    // --- Part 2: THE USER PHOTO (The image whose background is to be replaced by a new generation) ---
-    promptParts.push({ text: "\n**THE USER PHOTO (Identify person, keep them 100% unchanged, replace their background):**" });
-    promptParts.push({ media: {url: input.photoDataUri} });
-
-
-    // --- Part 3: STYLE REFERENCE IMAGES (Inspiration for the NEWLY GENERATED BACKGROUND) ---
-    const addReferenceImagesAndInstructions = (uris: string[], themeName: string) => {
-      if (uris && uris.length > 0) {
-        let refIntroText = `\n\n**STYLE REFERENCE IMAGES FOR '${themeName}' THEME (OPTIONAL INSPIRATION for the A.I.-generated background that will replace the background of THE USER PHOTO):**
-These images provide stylistic cues (colors, textures, mood) for the NEW background.
-**DO NOT directly copy elements, especially people or prominent foreground objects, from these reference images.**
-Their style should influence the *newly generated background* you create for THE USER PHOTO. The person in THE USER PHOTO must remain the sole human subject and unchanged.\n`;
-        promptParts.push({ text: refIntroText });
-        uris.forEach((uri, index) => {
-            promptParts.push({text: `Style Reference Image ${index+1} for ${themeName}:`});
-            promptParts.push({ media: {url: uri} });
+      try {
+        // Use the default text model (e.g., gemini-2.0-flash) for style analysis
+        const styleAnalysisResponse = await ai.generate({
+          prompt: styleAnalysisPromptParts,
+          // No model specified, so it uses the default text model from ai/genkit.ts
         });
-        referenceImagesUsedDescription = `the style of provided '${themeName}' reference images and the general '${themeName}' theme`;
+        styleDescriptionFromReferences = styleAnalysisResponse.text ?? "";
+        if (!styleDescriptionFromReferences.trim()) {
+            console.warn(`Style analysis for '${themeName}' did not return a description. Using default theme description.`);
+            styleDescriptionFromReferences = ""; // Fallback will be handled later
+        } else {
+            console.log(`Style description for '${themeName}' from references: ${styleDescriptionFromReferences}`);
+        }
+      } catch (e) {
+        console.error("Error during style analysis AI call:", e);
+        styleDescriptionFromReferences = ""; // Fallback
       }
-    };
-
-    if (input.choice === 'Code' && input.codeReferenceImageUris && input.codeReferenceImageUris.length > 0) {
-      addReferenceImagesAndInstructions(input.codeReferenceImageUris, 'Code');
-    } else if (input.choice === 'Chaos' && input.chaosReferenceImageUris && input.chaosReferenceImageUris.length > 0) {
-      addReferenceImagesAndInstructions(input.chaosReferenceImageUris, 'Chaos');
     }
 
-    // --- Part 4: Final Generation Request & Output Description ---
-    promptParts.push({
+    // STEP 2: Generate the Final Image
+    const finalImagePromptParts: ({text: string} | {media: {url: string}})[] = [];
+
+    // Core instructions
+    let coreInstructions = `**TASK: BACKGROUND REPLACEMENT FOR THE USER PHOTO**
+
+You will be given "THE USER PHOTO". This photo contains a person.
+Your primary goal is to:
+1.  **IDENTIFY and PRESERVE THE PERSON** in "THE USER PHOTO". This person, including their face, body, clothing, and pose, MUST remain completely unchanged, clear, and visible in the foreground. They are the main subject.
+2.  **REPLACE THE EXISTING BACKGROUND** of "THE USER PHOTO" with a new, A.I.-generated background.
+3.  This new A.I.-generated background MUST be inspired by the chosen theme: **${input.choice}**.
+`;
+
+    if (styleDescriptionFromReferences.trim()) {
+      coreInstructions += `\n4.  Furthermore, the new background's style should be heavily influenced by this detailed description derived from reference images: "${styleDescriptionFromReferences}"`;
+    } else {
+      // Default style guidance if no references or analysis failed
+      if (input.choice === 'Code') {
+        coreInstructions += `\n4.  The new background for 'Code' should feature clean, futuristic, structured elements, possibly incorporating neon orange (hex #FF8C00) accents. Think circuit patterns, glowing geometric shapes, or sleek digital interfaces.`;
+      } else { // Chaos
+        coreInstructions += `\n4.  The new background for 'Chaos' should feature glitchy, abstract, aggressive elements, possibly incorporating neon yellow (hex #04D9FF) accents. Think distorted digital artifacts, chaotic energy lines, or fragmented light effects.`;
+      }
+    }
+     coreInstructions += `\n\n**CRITICAL RULE: THE PERSON FROM "THE USER PHOTO" MUST NOT BE ALTERED, REPLACED, OR OBSCURED IN ANY WAY. Only their original background is to be replaced with a new A.I.-generated one BEHIND THEM.**`;
+
+    finalImagePromptParts.push({ text: coreInstructions });
+
+    // THE USER PHOTO
+    finalImagePromptParts.push({ text: "\n\n**THE USER PHOTO (Identify person, keep them 100% unchanged, replace their background):**" });
+    finalImagePromptParts.push({ media: {url: input.photoDataUri} });
+    
+    // Final instruction for generation
+    finalImagePromptParts.push({
       text: `\n\n**FINAL INSTRUCTION: Generate the image.**
-1.  Take the person from "THE USER PHOTO" (the very first image provided) and ensure they are perfectly preserved and unchanged in the foreground.
-2.  Replace their original background with a new A.I.-generated background. This new background must reflect the '${input.choice}' theme and be stylistically inspired by any provided "STYLE REFERENCE IMAGES".
+1.  Take the person from "THE USER PHOTO" and ensure they are perfectly preserved and unchanged in the foreground.
+2.  Replace their original background with a new A.I.-generated background as described above.
 3.  All generated elements MUST ONLY be in this new background, BEHIND the preserved person.
 You can also provide a brief text description of the newly generated background and how it incorporates the theme and style references.`
     });
-    
+
     const {media, text: modelGeneratedText} = await ai.generate({
-      model: 'googleai/gemini-2.0-flash-exp', 
-      prompt: promptParts,
+      model: 'googleai/gemini-2.0-flash-exp',
+      prompt: finalImagePromptParts,
       config: {
         responseModalities: ['TEXT', 'IMAGE'],
-         safetySettings: [ 
+        safetySettings: [
           { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_ONLY_HIGH' },
           { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
           { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
@@ -122,17 +146,17 @@ You can also provide a brief text description of the newly generated background 
 
     if (!transformedPhotoDataUri) {
       console.warn("AI image generation did not return a media URL. Falling back to previous image.");
-      transformedPhotoDataUri = input.photoDataUri; 
+      transformedPhotoDataUri = input.photoDataUri;
       transformationDescription = "AI image generation failed to return a new image. Displaying the previous image.";
     } else if (!transformationDescription || transformationDescription.trim() === "") {
-        transformationDescription = `A new background was generated for the user's photo based on their choice of '${input.choice}' for question #${input.questionNumber}, inspired by ${referenceImagesUsedDescription}. The user in their original photo was intended to be kept clear, prominent, and unchanged in the foreground.`;
+        transformationDescription = `A new background was generated for the user's photo based on their choice of '${input.choice}' for question #${input.questionNumber}.
+It was inspired by ${styleDescriptionFromReferences.trim() ? "an analysis of reference images: "+styleDescriptionFromReferences : "the general '"+input.choice+"' theme"}.
+The user in their original photo was intended to be kept clear, prominent, and unchanged in the foreground.`;
     }
-    
+
     return {
       transformedPhotoDataUri: transformedPhotoDataUri,
       transformationDescription: transformationDescription,
     };
   }
 );
-
-    
