@@ -77,9 +77,7 @@ Instructions based on choice:
 3.  Thematic elements should appear BEHIND the user or as subtle environmental effects that DO NOT obscure the user.
 4.  The user from their original photo (the first image) MUST be the clear and prominent subject of the final image.
 
-Return the transformed image as a data URI and a brief description.
-The transformedPhotoDataUri field should be a data URI with MIME type and Base64 encoding.
-The transformationDescription should describe what was changed in the user's photo, referencing the user's photo as 'the first image' or 'the user's original photo'.
+Return the transformed image. You can also provide a brief text description of the changes made to the background of the user's original photo.
   `,
 });
 
@@ -130,14 +128,13 @@ const transformImageFlow = ai.defineFlow(
 2.  **All modifications should target the BACKGROUND of this first image ONLY.**
 3.  **Elements inspired by reference images (if any) must be integrated into the BACKGROUND, BEHIND the user from the first image.**
 4.  **DO NOT cover, alter, or replace the user's face or body from the first image. The user must remain the clear, recognizable, and unchanged subject.**
-5.  Output the modified image as a data URI.
-6.  Provide a transformationDescription that accurately describes how the BACKGROUND of the user's original photo (the first image) was changed, mentioning the user's choice and theme.
+Generate the transformed image. You can also provide a brief text description of the changes made to the background of the user's original photo.
 `;
     
     promptParts.push({text: instructionText});
 
     const {media, text: modelGeneratedText} = await ai.generate({
-      model: 'googleai/gemini-2.0-flash-exp', // Reverted to recommended image generation model
+      model: 'googleai/gemini-2.0-flash-exp',
       prompt: promptParts,
       config: {
         responseModalities: ['TEXT', 'IMAGE'],
@@ -167,3 +164,4 @@ const transformImageFlow = ai.defineFlow(
     };
   }
 );
+
