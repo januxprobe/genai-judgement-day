@@ -49,29 +49,29 @@ const prompt = ai.definePrompt({
   prompt: `You are an AI image transformation service. Your task is to modify a user's photo by adding thematic elements based on their quiz choice of 'Code' or 'Chaos'.
 Optionally, one or more reference images may be provided for the chosen theme to guide the style of the transformation.
 
-**Critically important: The user's face and body MUST remain clear, visible, and recognizable. Transformations should primarily affect the background or be additive elements that DO NOT obscure the person.**
+**Critically important: The user's photo is the BASE image. The user's face and body MUST remain clear, visible, and recognizable. Transformations should primarily affect the BACKGROUND of the user's photo or be additive elements that DO NOT obscure the person. Any added elements from reference images should appear BEHIND the user.**
 
-User's photo: {{media url=photoDataUri}}
+User's photo (this is the base image to modify): {{media url=photoDataUri}}
 User's choice for question #{{questionNumber}}: {{{choice}}}
 
 {{#if codeReferenceImageUris}}
-Reference images for 'Code' theme (use for inspiration):
+Reference images for 'Code' theme (use for inspiration for elements to add BEHIND the user in their photo):
 {{#each codeReferenceImageUris}}
 - {{media url=this}}
 {{/each}}
 {{/if}}
 {{#if chaosReferenceImageUris}}
-Reference images for 'Chaos' theme (use for inspiration):
+Reference images for 'Chaos' theme (use for inspiration for elements to add BEHIND the user in their photo):
 {{#each chaosReferenceImageUris}}
 - {{media url=this}}
 {{/each}}
 {{/if}}
 
 Based on their choice (and any provided reference images):
-- If the choice is 'Code', add clean, futuristic, and structured elements in neon orange (hex #FF8C00) to the background or around the user. Think circuit patterns, glowing geometric shapes, or sleek digital interfaces.
-- If the choice is 'Chaos', add glitchy, abstract, and aggressive elements in neon yellow (hex #04D9FF) to the background or around the user. Think distorted digital artifacts, chaotic energy lines, or fragmented light effects.
+- If the choice is 'Code', add clean, futuristic, and structured elements in neon orange (hex #FF8C00) to the background BEHIND the user in their photo. Think circuit patterns, glowing geometric shapes, or sleek digital interfaces.
+- If the choice is 'Chaos', add glitchy, abstract, and aggressive elements in neon yellow (hex #04D9FF) to the background BEHIND the user in their photo. Think distorted digital artifacts, chaotic energy lines, or fragmented light effects.
 
-**Reiterate: Do NOT cover or distort the user's face or body significantly. The person should be the clear subject. If reference images are used, draw inspiration from them for the thematic elements, but the primary subject remains the user's photo.**
+**Reiterate: Do NOT cover or distort the user's face or body significantly. The person from the original photo should be the clear subject. If reference images are used, draw inspiration from them for the thematic elements to be added BEHIND the user, but the primary subject remains the user's photo.**
 
 Return the transformed image as a data URI and provide a brief description of the transformation applied, focusing on how the theme was incorporated while preserving the user's likeness.
 
@@ -86,33 +86,34 @@ const transformImageFlow = ai.defineFlow(
     outputSchema: TransformImageOutputSchema,
   },
   async input => {
+    // The first image in promptParts is ALWAYS the user's photo.
     const promptParts: ({text: string} | {media: {url: string}})[] = [
-      {media: {url: input.photoDataUri}}, // User's photo first
+      {media: {url: input.photoDataUri}}, 
     ];
 
-    let instructionText = `The first image provided in this prompt is the user's photo. **This user's photo is the primary subject and MUST NOT be replaced or significantly obscured. The user's face and body must remain clear, visible, and recognizable.**
-Your task is to augment this user's photo. Based on their choice of '${input.choice}' for question #${input.questionNumber}:`;
+    let instructionText = `The VERY FIRST image provided in this prompt is the user's photo. This user's photo is the BASE image and MUST NOT be replaced or significantly obscured. The user's face and body MUST remain clear, visible, and recognizable.
+Your task is to augment THIS FIRST user's photo. Based on their choice of '${input.choice}' for question #${input.questionNumber}:`;
 
-    let referenceImagesUsed = false;
+    let referenceImagesUsedDescription = "the chosen theme";
     let choiceSpecificInstructions = "";
 
     if (input.choice === 'Code') {
-      choiceSpecificInstructions = ` Add clean, futuristic, structured elements in neon orange (hex #FF8C00) primarily **to the background of the user's photo (the first image)** or as subtle additive elements around the user. Think circuit patterns, glowing geometric shapes, or sleek digital interfaces.`;
+      choiceSpecificInstructions = ` Add clean, futuristic, structured elements in neon orange (hex #FF8C00) primarily **BEHIND the user in their photo (the first image)** or as subtle additive elements around the user that do not obscure them. Think circuit patterns, glowing geometric shapes, or sleek digital interfaces.`;
       if (input.codeReferenceImageUris && input.codeReferenceImageUris.length > 0) {
         input.codeReferenceImageUris.forEach(uri => promptParts.push({media: {url: uri}}));
-        choiceSpecificInstructions += ` The subsequent image(s) (following the user's photo in this prompt) are reference styles for the 'Code' theme. Use these for inspiration when adding the 'Code' elements. Apply these elements thoughtfully, ensuring they enhance, not obscure, the user.`;
-        referenceImagesUsed = true;
+        choiceSpecificInstructions += ` The subsequent image(s) in this prompt are reference styles for the 'Code' theme. Use these for inspiration when adding the 'Code' elements BEHIND the user in their original photo (the first image). Apply these elements thoughtfully, ensuring they enhance, not obscure, the user.`;
+        referenceImagesUsedDescription = "reference 'Code' images and the 'Code' theme";
       }
     } else if (input.choice === 'Chaos') {
-      choiceSpecificInstructions = ` Add glitchy, abstract, aggressive elements in neon yellow (hex #04D9FF) primarily **to the background of the user's photo (the first image)** or as subtle additive elements around the user. Think distorted digital artifacts, chaotic energy lines, or fragmented light effects.`;
+      choiceSpecificInstructions = ` Add glitchy, abstract, aggressive elements in neon yellow (hex #04D9FF) primarily **BEHIND the user in their photo (the first image)** or as subtle additive elements around the user that do not obscure them. Think distorted digital artifacts, chaotic energy lines, or fragmented light effects.`;
       if (input.chaosReferenceImageUris && input.chaosReferenceImageUris.length > 0) {
         input.chaosReferenceImageUris.forEach(uri => promptParts.push({media: {url: uri}}));
-        choiceSpecificInstructions += ` The subsequent image(s) (following the user's photo in this prompt) are reference styles for the 'Chaos' theme. Use these for inspiration when adding the 'Chaos' elements. Apply these elements thoughtfully, ensuring they enhance, not obscure, the user.`;
-        referenceImagesUsed = true;
+        choiceSpecificInstructions += ` The subsequent image(s) in this prompt are reference styles for the 'Chaos' theme. Use these for inspiration when adding the 'Chaos' elements BEHIND the user in their original photo (the first image). Apply these elements thoughtfully, ensuring they enhance, not obscure, the user.`;
+        referenceImagesUsedDescription = "reference 'Chaos' images and the 'Chaos' theme";
       }
     }
     instructionText += choiceSpecificInstructions;
-    instructionText += `\n\n**Critically reiterate: The final output image must be the original user (from the first image) with these thematic elements added. The user must remain the clear, recognizable subject.** Return the transformed image as a data URI.`;
+    instructionText += `\n\n**Critically reiterate: The final output image MUST be the original user (from the first image) with these thematic elements added BEHIND them or to their background. The user must remain the clear, recognizable subject of their original photo.** Return the transformed image as a data URI.`;
     
     promptParts.push({text: instructionText});
 
@@ -139,7 +140,7 @@ Your task is to augment this user's photo. Based on their choice of '${input.cho
     
     return {
       transformedPhotoDataUri: transformedPhotoDataUri,
-      transformationDescription: `The image was transformed based on the user's choice of ${input.choice} for question #${input.questionNumber}, focusing on thematic background elements inspired by ${referenceImagesUsed ? 'reference images and ' : ''}the chosen theme, while keeping the user clear.`,
+      transformationDescription: `The image was transformed based on the user's choice of ${input.choice} for question #${input.questionNumber}, focusing on thematic background elements inspired by ${referenceImagesUsedDescription}, while keeping the user from their original photo clear and prominent.`,
     };
   }
 );
