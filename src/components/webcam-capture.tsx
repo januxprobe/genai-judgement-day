@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useRef, useState, useCallback, useEffect } from 'react';
@@ -5,6 +6,7 @@ import CrtOverlay from './crt-overlay';
 import NeonButton from './neon-button';
 import { useToast } from "@/hooks/use-toast";
 import { Camera, RefreshCw, CheckCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface WebcamCaptureProps {
   onImageCapture: (imageDataUrl: string) => void;
@@ -44,13 +46,18 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({ onImageCapture, initialPr
   }, [toast]);
 
   useEffect(() => {
-    // Automatically try to start webcam on mount
     if (!stream && !capturedImage) {
         startWebcam();
     }
     return () => {
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
+      }
+      // Also ensure videoRef srcObject is cleaned up if it was set directly
+      if (videoRef.current && videoRef.current.srcObject) {
+        const currentStream = videoRef.current.srcObject as MediaStream;
+        currentStream.getTracks().forEach(track => track.stop());
+        videoRef.current.srcObject = null;
       }
     };
   }, [startWebcam, stream, capturedImage]);
@@ -66,7 +73,15 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({ onImageCapture, initialPr
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         const imageDataUrl = canvas.toDataURL('image/png');
         setCapturedImage(imageDataUrl);
-        stream.getTracks().forEach(track => track.stop()); // Stop webcam after capture
+        // Stop webcam after capture
+        if (stream) {
+          stream.getTracks().forEach(track => track.stop());
+        }
+        if (videoRef.current && videoRef.current.srcObject) {
+           const currentStream = videoRef.current.srcObject as MediaStream;
+           currentStream.getTracks().forEach(track => track.stop());
+           videoRef.current.srcObject = null;
+        }
         setStream(null);
         setPromptText("ASSIMILATING SUBJECT...");
       }
@@ -76,7 +91,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({ onImageCapture, initialPr
   const handleRetake = () => {
     setCapturedImage(null);
     setPromptText("RE-CALIBRATING...");
-    startWebcam();
+    startWebcam(); // This will re-request permission and set new stream
   };
 
   const handleConfirm = () => {
@@ -94,16 +109,31 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({ onImageCapture, initialPr
       {error && <p className="text-destructive text-center text-lg">{error}</p>}
 
       <div className="relative w-full aspect-[4/3] bg-black border-2 border-primary rounded-lg shadow-[0_0_15px_theme(colors.primary.DEFAULT)] overflow-hidden">
-        {!capturedImage && stream && (
-          <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
-        )}
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted
+          className={cn(
+            "w-full h-full object-cover",
+            // Show video if stream is active AND no image is captured. Otherwise hide.
+            { 'hidden': !!capturedImage || !stream }
+          )}
+        />
         {capturedImage && (
-          <img src={capturedImage} alt="Captured" className="w-full h-full object-cover" />
+          <img src={capturedImage} alt="Captured" className="w-full h-full object-cover absolute inset-0" />
         )}
-        {(!stream && !capturedImage && !error) && (
-             <div className="w-full h-full flex items-center justify-center">
-                <p className="text-xl neon-text-secondary">INITIALIZING CAMERA...</p>
-             </div>
+        {/* Placeholder for loading state if video is not yet active and no image captured */}
+        {!capturedImage && !stream && !error && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black">
+            <p className="text-xl neon-text-secondary">INITIALIZING CAMERA...</p>
+          </div>
+        )}
+         {/* Placeholder for error state if video is not available and no image captured */}
+        {!capturedImage && !stream && error && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black">
+            <p className="text-xl text-destructive">WEBCAM ERROR</p>
+          </div>
         )}
         <CrtOverlay />
       </div>
