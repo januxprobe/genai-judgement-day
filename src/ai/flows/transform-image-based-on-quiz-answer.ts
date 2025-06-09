@@ -1,6 +1,8 @@
+
 'use server';
 /**
  * @fileOverview Transforms a user's image based on their quiz answers, optionally using arrays of reference images for thematic inspiration.
+ * The AI's task is to preserve the person in the user's photo and generate a new background behind them.
  *
  * - transformImage - A function that transforms the image based on quiz choices.
  * - TransformImageInput - The input type for the transformImage function.
@@ -50,38 +52,33 @@ const transformImageFlow = ai.defineFlow(
     let referenceImagesUsedDescription = "the chosen theme's general style";
 
     // --- Part 1: CORE INSTRUCTIONS ---
-    let coreInstructions = `**AI IMAGE EDITOR TASK: Your primary goal is to modify THE USER PHOTO by generating a NEW BACKGROUND for it, inspired by the chosen theme and any provided STYLE REFERENCE IMAGES.**
+    let coreInstructions = `**TASK: BACKGROUND REPLACEMENT FOR THE USER PHOTO**
 
-**CRITICAL RULES FOR THE USER PHOTO:**
-1.  THE USER PHOTO (which will be the first image provided right after these initial instructions) contains a person.
-2.  **This person (their face, body, pose, clothing, and anything they are holding or interacting with in their immediate foreground) from THE USER PHOTO MUST remain absolutely clear, visible, recognizable, and COMPLETELY UNCHANGED.** They are the FOREGROUND.
-3.  You will GENERATE a NEW BACKGROUND. This NEW BACKGROUND should be placed *behind* the preserved person from THE USER PHOTO.
-4.  DO NOT replace, alter, obscure, or add effects *on top of* the person in THE USER PHOTO. All generated elements must be in the NEW BACKGROUND.
+You will be given a primary image called "THE USER PHOTO". This photo contains a person.
+Your goal is to:
+1.  **IDENTIFY and PRESERVE THE PERSON** in "THE USER PHOTO". This person, including their face, body, clothing, and pose, MUST remain completely unchanged, clear, and visible in the foreground. They are the main subject.
+2.  **REPLACE THE EXISTING BACKGROUND** of "THE USER PHOTO" with a new, A.I.-generated background.
+3.  This new A.I.-generated background should be inspired by the chosen theme for question #${input.questionNumber}: **${input.choice}**.
+    - If 'Code': The new background should feature clean, futuristic, structured elements in neon orange (hex #FF8C00). Think circuit patterns, glowing geometric shapes, or sleek digital interfaces.
+    - If 'Chaos': The new background should feature glitchy, abstract, aggressive elements in neon yellow (hex #04D9FF). Think distorted digital artifacts, chaotic energy lines, or fragmented light effects.
+4.  If "STYLE REFERENCE IMAGES" are provided later (after THE USER PHOTO), use their visual style, mood, colors, and textures as *additional inspiration* for the A.I.-generated background. **DO NOT copy people or large, distinct foreground objects from the STYLE REFERENCE IMAGES.** They are for style guidance only for the new background.
 
-Theme choice for question #${input.questionNumber}: **${input.choice}**.
-
+**CRITICAL RULE: THE PERSON FROM "THE USER PHOTO" MUST NOT BE ALTERED, REPLACED, OR OBSCURED IN ANY WAY. Only their original background is to be replaced with a new A.I.-generated one.**
 `;
-
-    if (input.choice === 'Code') {
-      coreInstructions += `For the 'Code' theme: Generate a NEW BACKGROUND featuring clean, futuristic, structured elements in neon orange (hex #FF8C00). Think circuit patterns, glowing geometric shapes, or sleek digital interfaces. This NEW BACKGROUND will be placed behind the person in THE USER PHOTO.\n`;
-    } else { // Chaos
-      coreInstructions += `For the 'Chaos' theme: Generate a NEW BACKGROUND featuring glitchy, abstract, aggressive elements in neon yellow (hex #04D9FF). Think distorted digital artifacts, chaotic energy lines, or fragmented light effects. This NEW BACKGROUND will be placed behind the person in THE USER PHOTO.\n`;
-    }
     promptParts.push({ text: coreInstructions });
 
     // --- Part 2: THE USER PHOTO (The image whose background is to be replaced by a new generation) ---
-    promptParts.push({ text: "**THE USER PHOTO (Keep person in foreground, generate new background behind them):**" });
+    promptParts.push({ text: "\n**THE USER PHOTO (Identify person, keep them 100% unchanged, replace their background):**" });
     promptParts.push({ media: {url: input.photoDataUri} });
 
 
-    // --- Part 3: STYLE REFERENCE IMAGES (Inspiration for the NEW BACKGROUND) ---
+    // --- Part 3: STYLE REFERENCE IMAGES (Inspiration for the NEWLY GENERATED BACKGROUND) ---
     const addReferenceImagesAndInstructions = (uris: string[], themeName: string) => {
       if (uris && uris.length > 0) {
-        let refIntroText = `\n\n**STYLE REFERENCE IMAGES FOR '${themeName}' THEME (OPTIONAL INSPIRATION FOR THE *NEW BACKGROUND*):**
-The image(s) that follow are STYLE REFERENCES ONLY.
-**DO NOT EDIT THESE STYLE REFERENCE IMAGES.**
-Use their style, theme, colors, and mood ONLY as inspiration for GENERATING the NEW BACKGROUND that will go behind the person in THE USER PHOTO (the first image provided).
-**DO NOT copy people, foreground subjects, or large distinct objects directly from these reference images into the new background.** The goal is stylistic inspiration, not direct copying. The person in THE USER PHOTO must remain the sole human subject and completely unchanged.\n`;
+        let refIntroText = `\n\n**STYLE REFERENCE IMAGES FOR '${themeName}' THEME (OPTIONAL INSPIRATION for the A.I.-generated background that will replace the background of THE USER PHOTO):**
+These images provide stylistic cues (colors, textures, mood) for the NEW background.
+**DO NOT directly copy elements, especially people or prominent foreground objects, from these reference images.**
+Their style should influence the *newly generated background* you create for THE USER PHOTO. The person in THE USER PHOTO must remain the sole human subject and unchanged.\n`;
         promptParts.push({ text: refIntroText });
         uris.forEach((uri, index) => {
             promptParts.push({text: `Style Reference Image ${index+1} for ${themeName}:`});
@@ -99,13 +96,10 @@ Use their style, theme, colors, and mood ONLY as inspiration for GENERATING the 
 
     // --- Part 4: Final Generation Request & Output Description ---
     promptParts.push({
-      text: `\n\n**FINAL TASK: Generate the composite image.**
-This means:
-1.  Take the original person from THE USER PHOTO (the very first image provided) completely unchanged.
-2.  GENERATE a NEW BACKGROUND according to the '${input.choice}' theme and inspired by the style of any provided STYLE REFERENCE IMAGES.
-3.  Place this NEWLY GENERATED background *behind* the original person.
-Ensure the person from THE USER PHOTO is the clear, unchanged foreground, and the new elements are only in the generated background behind them.
-
+      text: `\n\n**FINAL INSTRUCTION: Generate the image.**
+1.  Take the person from "THE USER PHOTO" (the very first image provided) and ensure they are perfectly preserved and unchanged in the foreground.
+2.  Replace their original background with a new A.I.-generated background. This new background must reflect the '${input.choice}' theme and be stylistically inspired by any provided "STYLE REFERENCE IMAGES".
+3.  All generated elements MUST ONLY be in this new background, BEHIND the preserved person.
 You can also provide a brief text description of the newly generated background and how it incorporates the theme and style references.`
     });
     
@@ -121,7 +115,6 @@ You can also provide a brief text description of the newly generated background 
           { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_LOW_AND_ABOVE' },
         ],
       },
-      // No output schema here as it caused issues with image models
     });
 
     let transformedPhotoDataUri = media?.url;
@@ -142,3 +135,4 @@ You can also provide a brief text description of the newly generated background 
   }
 );
 
+    
