@@ -91,7 +91,7 @@ const transformImageFlow = ai.defineFlow(
   },
   async input => {
     const promptParts: ({text: string} | {media: {url: string}})[] = [
-      {media: {url: input.photoDataUri}},
+      {media: {url: input.photoDataUri}}, // User's photo is always the first image
     ];
 
     let instructionText = `**Task: You are an AI image editor. Your primary goal is to modify the BACKGROUND of the VERY FIRST image provided (which is the user's photo). The person (face, body, pose) in this first image MUST remain clear, visible, recognizable, and UNCHANGED. Do NOT replace, alter, or obscure the person.**\n\n`;
@@ -101,6 +101,7 @@ const transformImageFlow = ai.defineFlow(
     let choiceSpecificInstructions = "";
     let referenceImageInstructions = "";
 
+    // Helper to add reference images to prompt parts and update instruction text
     const addReferenceImages = (uris: string[], themeName: string) => {
       if (uris && uris.length > 0) {
         referenceImageInstructions += `The subsequent image(s) are REFERENCE STYLES for the '${themeName}' theme. Use them ONLY as inspiration for designing the BACKGROUND elements to add BEHIND the user in their original photo (the very first image). DO NOT copy people or foreground subjects from these reference images. The user in the first image must remain the focus and unchanged.\n`;
@@ -136,7 +137,7 @@ const transformImageFlow = ai.defineFlow(
     promptParts.push({text: instructionText});
 
     const {media, text: modelGeneratedText} = await ai.generate({
-      model: 'googleai/gemini-2.0-flash-preview-image-generation',
+      model: 'googleai/gemini-2.0-flash-exp', // Reverted to recommended image generation model
       prompt: promptParts,
       config: {
         responseModalities: ['TEXT', 'IMAGE'],
@@ -147,11 +148,9 @@ const transformImageFlow = ai.defineFlow(
           { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_LOW_AND_ABOVE' },
         ],
       },
-      // Removed: output: { schema: TransformImageOutputSchema } - This was causing the "JSON mode not enabled" error
     });
 
     let transformedPhotoDataUri = media?.url;
-    // Use the AI's description if available, otherwise construct a default.
     let transformationDescription = modelGeneratedText;
 
     if (!transformedPhotoDataUri) {
@@ -159,7 +158,6 @@ const transformImageFlow = ai.defineFlow(
       transformedPhotoDataUri = input.photoDataUri; 
       transformationDescription = "AI image generation failed to return a new image. Displaying the previous image.";
     } else if (!transformationDescription || transformationDescription.trim() === "") {
-        // Fallback description if AI doesn't provide one
         transformationDescription = `The background of the user's photo (the first image provided) was transformed based on their choice of '${input.choice}' for question #${input.questionNumber}, inspired by ${referenceImagesUsedDescription}. The user from the original photo was intended to be kept clear, prominent, and unchanged.`;
     }
     
