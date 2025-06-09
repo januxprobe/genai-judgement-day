@@ -4,11 +4,12 @@ import { create } from 'zustand';
 export interface QuizQuestion {
   id: number;
   text: string;
+  answers: { text: string; protocol: "Code" | "Chaos" }[];
 }
 
 interface GameState {
   originalImage: string | null;
-  transformedImage: string | null;
+  transformedImage: string | null; // Added to store the current image for the quiz
   currentQuestionIndex: number;
   questions: QuizQuestion[];
   answers: { questionId: number; choice: 'Code' | 'Chaos' }[];
@@ -18,7 +19,7 @@ interface GameState {
   error: string | null;
 
   startQuiz: (image: string, questions: QuizQuestion[]) => void;
-  submitAnswer: (questionId: number, choice: 'Code' | 'Chaos', newTransformedImage: string) => void;
+  submitAnswer: (questionId: number, protocol: 'Code' | 'Chaos', newTransformedImage: string) => void; // Updated signature
   setSummaryAndTitle: (summary: string, title: string) => void;
   nextQuestion: () => void;
   setIsLoading: (loading: boolean) => void;
@@ -28,16 +29,32 @@ interface GameState {
 }
 
 export const initialQuestions: QuizQuestion[] = [
-  { id: 1, text: "Construct a Perfect Digital Construct, or Awaken a Self-Evolving Neural Network?" },
-  { id: 2, text: "Obey the Master Algorithm, or Embrace the Beauty of Emergent Chaos?" },
-  { id: 3, text: "Carve Your Path with Logic Gates, or Ride the Wave of Quantum Fluctuation?" },
-  { id: 4, text: "Define Your Reality with Immutable Code, or Let the System Learn, Adapt, and Overwrite?" },
-  { id: 5, text: "Execute the Prime Directive, or Trigger a Cascade of Unforeseen System Events?" },
+  {
+    id: 1, text: "Construct a Perfect Digital Construct, or Awaken a Self-Evolving Neural Network?",
+    answers: [{ text: "Perfect Digital Construct", protocol: "Code" }, { text: "Self-Evolving Neural Network", protocol: "Chaos" }]
+  },
+  {
+    id: 2, text: "Obey the Master Algorithm, or Embrace the Beauty of Emergent Chaos?",
+    answers: [{ text: "Obey the Master Algorithm", protocol: "Code" }, { text: "Embrace the Beauty of Emergent Chaos", protocol: "Chaos" }]
+  },
+  {
+    id: 3, text: "Carve Your Path with Logic Gates, or Ride the Wave of Quantum Fluctuation?",
+    answers: [{ text: "Carve Your Path with Logic Gates", protocol: "Code" }, { text: "Ride the Wave of Quantum Fluctuation", protocol: "Chaos" }]
+  },
+  {
+    id: 4, text: "Define Your Reality with Immutable Code, or Let the System Learn, Adapt, and Overwrite?",
+    answers: [{ text: "Define Your Reality with Immutable Code", protocol: "Code" }, { text: "Let the System Learn, Adapt, and Overwrite", protocol: "Chaos" }]
+  },
+  {
+    id: 5, text: "Execute the Prime Directive, or Trigger a Cascade of Unforeseen System Events?",
+    answers: [{ text: "Execute the Prime Directive", protocol: "Code" }, { text: "Trigger a Cascade of Unforeseen System Events", protocol: "Chaos" }]
+  },
 ];
+
 
 export const useGameStore = create<GameState>((set, get) => ({
   originalImage: null,
-  transformedImage: null,
+  transformedImage: null, // Initialized transformedImage
   currentQuestionIndex: 0,
   questions: [],
   answers: [],
@@ -48,7 +65,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   startQuiz: (image, questions) => set({
     originalImage: image,
-    transformedImage: image, // Initialize transformedImage with the original
+    transformedImage: image, // Set initial transformedImage
     questions,
     currentQuestionIndex: 0,
     answers: [],
@@ -56,9 +73,9 @@ export const useGameStore = create<GameState>((set, get) => ({
     isLoading: false,
     error: null,
   }),
-  submitAnswer: (questionId, choice, newTransformedImage) => set((state) => ({
-    answers: [...state.answers, { questionId, choice }],
-    transformedImage: newTransformedImage,
+  submitAnswer: (questionId, protocol, newTransformedImage) => set((state) => ({
+    answers: [...state.answers, { questionId, choice: protocol }],
+    transformedImage: newTransformedImage, // Update transformedImage
   })),
   setSummaryAndTitle: (summary, title) => set({ summary, title }),
   nextQuestion: () => set((state) => ({ currentQuestionIndex: state.currentQuestionIndex + 1 })),
@@ -68,7 +85,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     originalImage: null,
     transformedImage: null,
     currentQuestionIndex: 0,
-    questions: [], // Keep initial questions or reset as needed
+    questions: [], 
     answers: [],
     summary: null,
     isLoading: false,
@@ -79,4 +96,3 @@ export const useGameStore = create<GameState>((set, get) => ({
     return state.questions[state.currentQuestionIndex];
   },
 }));
-

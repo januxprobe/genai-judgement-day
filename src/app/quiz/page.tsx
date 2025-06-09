@@ -354,22 +354,18 @@ export default function QuizPage() {
         )}
 
         <div className="flex flex-col sm:flex-row justify-center gap-6 w-full max-w-lg">
-          <NeonButton
-            neonColor="primary"
-            onClick={() => handleAnswer('Code')}
-            disabled={isLoading}
-            className="w-full sm:flex-1"
-          >
-            CODE
-          </NeonButton>
-          <NeonButton
-            neonColor="secondary"
-            onClick={() => handleAnswer('Chaos')}
-            disabled={isLoading}
-            className="w-full sm:flex-1"
-          >
-            CHAOS
-          </NeonButton>
+          {/* Render answer buttons */}
+ {currentQuestion.answers.map((answer, index) => (
+ <NeonButton
+ key={index}
+ neonColor={answer.protocol === 'Code' ? 'primary' : 'secondary'}
+ onClick={() => handleAnswer(answer.protocol)}
+ disabled={isLoading}
+ className="w-full sm:flex-1"
+ >
+ {answer.text}
+ </NeonButton>
+ ))}
         </div>
         
         {isLoading && (
