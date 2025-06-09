@@ -3,8 +3,8 @@
 /**
  * @fileOverview Transforms a user's image based on their quiz answers.
  * This flow now uses a two-step AI process:
- * 1. If reference images are provided, they are first analyzed by a text model to generate a style description.
- * 2. The user's photo and this style description (or a default theme description) are then used to guide an image generation model
+ * 1. If reference images are provided, they are first analyzed by a text model to generate a description of objects, props, and thematic elements.
+ * 2. The user's photo and this description (or a default theme description) are then used to guide an image generation model
  *    to create a new background while preserving the user.
  *
  * - transformImage - A function that transforms the image based on quiz choices.
@@ -53,64 +53,57 @@ const transformImageFlow = ai.defineFlow(
     outputSchema: TransformImageOutputSchema,
   },
   async input => {
-    let styleDescriptionFromReferences = "";
+    let descriptionFromReferences = "";
     const referenceImageUris = input.choice === 'Code' ? input.codeReferenceImageUris : input.chaosReferenceImageUris;
     const themeName = input.choice;
-    // This variable holds the original paths that were attempted to be loaded for this theme.
-    // It's defined in quiz/page.tsx and passed through the input if converted.
-    // For logging, we need to know which paths these URIs came from.
-    // Let's assume CODE_REFERENCE_IMAGE_PATHS and CHAOS_REFERENCE_IMAGE_PATHS are somehow accessible or inferred for logging.
-    // For now, we'll just log the URIs themselves in the prompt parts.
-    // The quiz page can determine the original paths for `imageUrlToDataUri`.
-
+    
     const originalPathsForTheme = (() => {
-        // This is a simplified way to get paths; in a real app, this might come from a config or constants file
-        // Re-declaring them here for clarity in the log context, ideally these would be imported.
         const CODE_PATHS = ['/reference-themes/code-style-1.png'];
         const CHAOS_PATHS = ['/reference-themes/chaos-style-1.png'];
         return input.choice === 'Code' ? CODE_PATHS : CHAOS_PATHS;
     })();
 
 
-    // STEP 1: Analyze Reference Images to get a Style Description (if provided)
+    // STEP 1: Analyze Reference Images to get a Description of Props and Elements (if provided)
     if (referenceImageUris && referenceImageUris.length > 0) {
-      const styleAnalysisPromptParts: ({text: string} | {media: {url: string}})[] = [];
-      styleAnalysisPromptParts.push({
-        text: `You are an expert art critic. Analyze the following images provided for the '${themeName}' theme.
-Describe their overall artistic style, mood, dominant colors, key visual elements (like shapes, patterns, textures), and any recurring motifs.
-Focus on descriptive terms that could guide an AI in generating a new, visually consistent background image.
-Be concise and focus on visual characteristics. For example: "A dark, gritty style with neon blue circuit patterns, sharp geometric shapes, and a sense of digital decay."
-Do not describe any people or specific objects in the reference images, only the overall style.
+      const analysisPromptParts: ({text: string} | {media: {url: string}})[] = [];
+      analysisPromptParts.push({
+        text: `You are an AI assistant. Analyze the following reference images provided for the '${themeName}' theme.
+Your goal is to describe specific objects, props, items, and distinct visual elements (e.g., robots, futuristic guns, specific machinery, energy effects, particular patterns) that are present in these images.
+Also, briefly note the overall artistic style if it's very prominent (e.g., '80s retro-futuristic', 'cyberpunk').
+Focus on elements that could be incorporated into a new, visually rich background. Be specific.
+For example: "Features a chrome robot arm holding a glowing plasma pistol, with neon circuit board patterns in the background, rendered in a gritty cyberpunk style."
+Do not describe any people in the reference images. Only describe the props, objects, and thematic background elements.
 Reference Images for '${themeName}':`
       });
-      referenceImageUris.forEach(uri => styleAnalysisPromptParts.push({ media: {url: uri} }));
+      referenceImageUris.forEach(uri => analysisPromptParts.push({ media: {url: uri} }));
 
-      console.log("DEBUG: Style Analysis - Prompt Parts being sent to AI (contains data URIs):", JSON.stringify(styleAnalysisPromptParts, null, 2));
-      console.log("DEBUG: Style Analysis - Original reference image paths for this analysis step:", originalPathsForTheme);
+      console.log("DEBUG: Reference Analysis - Prompt Parts being sent to AI (contains data URIs):", JSON.stringify(analysisPromptParts, null, 2));
+      console.log("DEBUG: Reference Analysis - Original reference image paths for this analysis step:", originalPathsForTheme);
 
       try {
         const logFilePath = path.join(process.cwd(), 'ai_prompt_debug.log');
-        const logContent = `\n\n--- ${new Date().toISOString()} ---\nStyle Analysis for theme '${themeName}':\nOriginal reference image paths used for this analysis: ${JSON.stringify(originalPathsForTheme)}\nPrompt Parts Sent to AI (contains data URIs corresponding to the paths above):\n${JSON.stringify(styleAnalysisPromptParts, null, 2)}\n`;
+        const logContent = `\n\n--- ${new Date().toISOString()} ---\nReference Analysis for theme '${themeName}':\nOriginal reference image paths used for this analysis: ${JSON.stringify(originalPathsForTheme)}\nPrompt Parts Sent to AI (contains data URIs corresponding to the paths above):\n${JSON.stringify(analysisPromptParts, null, 2)}\n`;
         await fs.appendFile(logFilePath, logContent);
-        console.log(`DEBUG: Style analysis details (including original paths and data URI prompt) also logged to ${logFilePath}`);
+        console.log(`DEBUG: Reference analysis details (including original paths and data URI prompt) also logged to ${logFilePath}`);
       } catch (logError) {
-        console.error("DEBUG: Error logging style analysis details to file:", logError);
+        console.error("DEBUG: Error logging reference analysis details to file:", logError);
       }
 
       try {
-        const styleAnalysisResponse = await ai.generate({
-          prompt: styleAnalysisPromptParts,
+        const analysisResponse = await ai.generate({ // Using default text model for this analysis
+          prompt: analysisPromptParts,
         });
-        styleDescriptionFromReferences = styleAnalysisResponse.text ?? "";
-        if (!styleDescriptionFromReferences.trim()) {
-            console.warn(`Style analysis for '${themeName}' did not return a description. Using default theme description.`);
-            styleDescriptionFromReferences = ""; 
+        descriptionFromReferences = analysisResponse.text ?? "";
+        if (!descriptionFromReferences.trim()) {
+            console.warn(`Reference analysis for '${themeName}' did not return a description. Using default theme description.`);
+            descriptionFromReferences = ""; 
         } else {
-            console.log(`Style description for '${themeName}' from references: ${styleDescriptionFromReferences}`);
+            console.log(`Description for '${themeName}' from references: ${descriptionFromReferences}`);
         }
       } catch (e) {
-        console.error("Error during style analysis AI call:", e);
-        styleDescriptionFromReferences = ""; 
+        console.error("Error during reference analysis AI call:", e);
+        descriptionFromReferences = ""; 
       }
     }
 
@@ -126,8 +119,8 @@ Your primary goal is to:
 3.  This new A.I.-generated background MUST be inspired by the chosen theme: **${input.choice}**.
 `;
 
-    if (styleDescriptionFromReferences.trim()) {
-      coreInstructions += `\n4.  Furthermore, the new background's style should be heavily influenced by this detailed description derived from reference images: "${styleDescriptionFromReferences}"`;
+    if (descriptionFromReferences.trim()) {
+      coreInstructions += `\n4.  Furthermore, the new background's style and content should be heavily influenced by this detailed description derived from reference images: "${descriptionFromReferences}"`;
     } else {
       if (input.choice === 'Code') {
         coreInstructions += `\n4.  The new background for 'Code' should feature clean, futuristic, structured elements, possibly incorporating neon orange (hex #FF8C00) accents. Think circuit patterns, glowing geometric shapes, or sleek digital interfaces.`;
@@ -147,7 +140,7 @@ Your primary goal is to:
 1.  Take the person from "THE USER PHOTO" and ensure they are perfectly preserved and unchanged in the foreground.
 2.  Replace their original background with a new A.I.-generated background as described above.
 3.  All generated elements MUST ONLY be in this new background, BEHIND the preserved person.
-You can also provide a brief text description of the newly generated background and how it incorporates the theme and style references.`
+You can also provide a brief text description of the newly generated background and how it incorporates the theme and object/style references.`
     });
 
     const {media, text: modelGeneratedText} = await ai.generate({
@@ -173,7 +166,7 @@ You can also provide a brief text description of the newly generated background 
       transformationDescription = "AI image generation failed to return a new image. Displaying the previous image.";
     } else if (!transformationDescription || transformationDescription.trim() === "") {
         transformationDescription = `A new background was generated for the user's photo based on their choice of '${input.choice}' for question #${input.questionNumber}.
-It was inspired by ${styleDescriptionFromReferences.trim() ? "an analysis of reference images: "+styleDescriptionFromReferences : "the general '"+input.choice+"' theme"}.
+It was inspired by ${descriptionFromReferences.trim() ? "an analysis of reference images: "+descriptionFromReferences : "the general '"+input.choice+"' theme"}.
 The user in their original photo was intended to be kept clear, prominent, and unchanged in the foreground.`;
     }
 
