@@ -19,8 +19,9 @@ const NeonButton = React.forwardRef<HTMLButtonElement, NeonButtonProps>(
       <Button
         ref={ref}
         className={cn(
-          "font-headline text-2xl tracking-wider py-3 px-6",
+          "font-headline text-xl tracking-wider py-4 px-6", // Changed text-2xl to text-xl, py-3 to py-4
           "border-2 rounded-lg",
+          "whitespace-normal h-auto", // Added whitespace-normal and h-auto
           "transition-all duration-300 ease-in-out transform hover:scale-105",
           "disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none",
           !disabled && neonColor === 'primary' &&
@@ -43,3 +44,4 @@ const NeonButton = React.forwardRef<HTMLButtonElement, NeonButtonProps>(
 NeonButton.displayName = "NeonButton";
 
 export default NeonButton;
+

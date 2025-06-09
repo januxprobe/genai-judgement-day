@@ -3,7 +3,7 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import WebcamCapture from '@/components/webcam-capture';
-import { useGameStore, initialQuestions } from '@/lib/store';
+import { useGameStore } from '@/lib/store';
 import CrtOverlay from '@/components/crt-overlay';
 
 export default function RecruitmentPage() {
@@ -11,7 +11,7 @@ export default function RecruitmentPage() {
   const startGame = useGameStore((state) => state.startQuiz);
 
   const handleImageCapture = (imageDataUrl: string) => {
-    startGame(imageDataUrl, initialQuestions);
+    startGame(imageDataUrl);
     router.push('/quiz');
   };
 
