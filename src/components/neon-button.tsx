@@ -12,7 +12,6 @@ interface NeonButtonProps extends ButtonProps {
 
 const NeonButton = React.forwardRef<HTMLButtonElement, NeonButtonProps>(
   ({ className, neonColor, children, glowIntense = false, disabled, ...props }, ref) => {
-    const colorClass = neonColor === 'primary' ? 'primary' : 'secondary';
     const shadowIntensity = glowIntense ? '20px' : '10px';
     const hoverShadowIntensity = glowIntense ? '30px' : '15px';
 
@@ -25,10 +24,10 @@ const NeonButton = React.forwardRef<HTMLButtonElement, NeonButtonProps>(
           "transition-all duration-300 ease-in-out transform hover:scale-105",
           "disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none",
           !disabled && neonColor === 'primary' &&
-            `border-primary neon-text-primary shadow-[0_0_${shadowIntensity}_theme(colors.primary.DEFAULT)] 
+            `border-primary text-foreground neon-text-primary shadow-[0_0_${shadowIntensity}_theme(colors.primary.DEFAULT)] 
              hover:bg-primary hover:text-primary-foreground hover:shadow-[0_0_10px_theme(colors.primary.DEFAULT),_0_0_${hoverShadowIntensity}_theme(colors.primary.DEFAULT)]`,
           !disabled && neonColor === 'secondary' &&
-            `border-secondary neon-text-secondary shadow-[0_0_${shadowIntensity}_theme(colors.secondary.DEFAULT)] 
+            `border-secondary text-foreground neon-text-secondary shadow-[0_0_${shadowIntensity}_theme(colors.secondary.DEFAULT)] 
              hover:bg-secondary hover:text-secondary-foreground hover:shadow-[0_0_10px_theme(colors.secondary.DEFAULT),_0_0_${hoverShadowIntensity}_theme(colors.secondary.DEFAULT)]`,
           disabled && "border-muted text-muted",
           className
