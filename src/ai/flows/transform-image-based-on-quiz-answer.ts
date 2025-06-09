@@ -40,6 +40,8 @@ export async function transformImage(input: TransformImageInput): Promise<Transf
   return transformImageFlow(input);
 }
 
+// This defined prompt is not directly used by the ai.generate call below,
+// as promptParts are constructed dynamically. It's kept for potential future use or different invocation patterns.
 const prompt = ai.definePrompt({
   name: 'transformImagePrompt',
   input: {schema: TransformImageInputSchema},
@@ -88,26 +90,30 @@ const transformImageFlow = ai.defineFlow(
       {media: {url: input.photoDataUri}}, // User's photo first
     ];
 
-    let instructionText = `Transform the image of the user, given their choice of '${input.choice}' for question #${input.questionNumber}.
-**Critically important: The user's face and body MUST remain clear, visible, and recognizable. Transformations should primarily affect the background or be additive elements that DO NOT obscure the person.**`;
+    let instructionText = `The first image provided in this prompt is the user's photo. **This user's photo is the primary subject and MUST NOT be replaced or significantly obscured. The user's face and body must remain clear, visible, and recognizable.**
+Your task is to augment this user's photo. Based on their choice of '${input.choice}' for question #${input.questionNumber}:`;
 
     let referenceImagesUsed = false;
+    let choiceSpecificInstructions = "";
 
     if (input.choice === 'Code') {
-      instructionText += ` Add clean, futuristic, structured elements in neon orange to the background or around the user.`;
+      choiceSpecificInstructions = ` Add clean, futuristic, structured elements in neon orange (hex #FF8C00) primarily **to the background of the user's photo (the first image)** or as subtle additive elements around the user. Think circuit patterns, glowing geometric shapes, or sleek digital interfaces.`;
       if (input.codeReferenceImageUris && input.codeReferenceImageUris.length > 0) {
         input.codeReferenceImageUris.forEach(uri => promptParts.push({media: {url: uri}}));
-        instructionText += ` Use the provided reference image(s) (which follow the user's photo in this prompt) as inspiration for these 'Code' elements. Apply them thoughtfully to enhance, not obscure, the user.`;
+        choiceSpecificInstructions += ` The subsequent image(s) (following the user's photo in this prompt) are reference styles for the 'Code' theme. Use these for inspiration when adding the 'Code' elements. Apply these elements thoughtfully, ensuring they enhance, not obscure, the user.`;
         referenceImagesUsed = true;
       }
     } else if (input.choice === 'Chaos') {
-      instructionText += ` Add glitchy, abstract, aggressive elements in neon yellow to the background or around the user.`;
+      choiceSpecificInstructions = ` Add glitchy, abstract, aggressive elements in neon yellow (hex #04D9FF) primarily **to the background of the user's photo (the first image)** or as subtle additive elements around the user. Think distorted digital artifacts, chaotic energy lines, or fragmented light effects.`;
       if (input.chaosReferenceImageUris && input.chaosReferenceImageUris.length > 0) {
         input.chaosReferenceImageUris.forEach(uri => promptParts.push({media: {url: uri}}));
-        instructionText += ` Use the provided reference image(s) (which follow the user's photo in this prompt) as inspiration for these 'Chaos' elements. Apply them thoughtfully to enhance, not obscure, the user.`;
+        choiceSpecificInstructions += ` The subsequent image(s) (following the user's photo in this prompt) are reference styles for the 'Chaos' theme. Use these for inspiration when adding the 'Chaos' elements. Apply these elements thoughtfully, ensuring they enhance, not obscure, the user.`;
         referenceImagesUsed = true;
       }
     }
+    instructionText += choiceSpecificInstructions;
+    instructionText += `\n\n**Critically reiterate: The final output image must be the original user (from the first image) with these thematic elements added. The user must remain the clear, recognizable subject.** Return the transformed image as a data URI.`;
+    
     promptParts.push({text: instructionText});
 
 
@@ -116,7 +122,7 @@ const transformImageFlow = ai.defineFlow(
       prompt: promptParts,
       config: {
         responseModalities: ['TEXT', 'IMAGE'],
-         safetySettings: [ // Added safety settings to be less restrictive
+         safetySettings: [ 
           { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_ONLY_HIGH' },
           { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
           { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_MEDIUM_AND_ABOVE' },
@@ -127,14 +133,14 @@ const transformImageFlow = ai.defineFlow(
 
     let transformedPhotoDataUri = media.url;
     if (!transformedPhotoDataUri) {
-      // Fallback or error handling if image generation fails
       console.warn("AI image generation did not return a media URL. Falling back to previous image.");
-      transformedPhotoDataUri = input.photoDataUri;
+      transformedPhotoDataUri = input.photoDataUri; // Fallback to the user's original image if generation fails
     }
     
     return {
       transformedPhotoDataUri: transformedPhotoDataUri,
-      transformationDescription: `The image was transformed based on the user's choice of ${input.choice} for question #${input.questionNumber}, focusing on thematic background elements while keeping the user clear. ${referenceImagesUsed ? 'Reference image(s) were used for inspiration.' : ''}`,
+      transformationDescription: `The image was transformed based on the user's choice of ${input.choice} for question #${input.questionNumber}, focusing on thematic background elements inspired by ${referenceImagesUsed ? 'reference images and ' : ''}the chosen theme, while keeping the user clear.`,
     };
   }
 );
+
