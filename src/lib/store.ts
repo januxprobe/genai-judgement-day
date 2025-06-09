@@ -28,11 +28,11 @@ interface GameState {
 }
 
 export const initialQuestions: QuizQuestion[] = [
-  { id: 1, text: "Forge with Precision or Unleash the Unpredictable?" },
-  { id: 2, text: "Calculated Order or Evolving Complexity?" },
-  { id: 3, text: "Structured Design or Emergent Phenomena?" },
-  { id: 4, text: "Seek Absolute Control or Embrace Adaptability?" },
-  { id: 5, text: "Follow Defined Protocols or Explore Radical Deviations?" },
+  { id: 1, text: "Construct a Perfect Digital Construct, or Awaken a Self-Evolving Neural Network?" },
+  { id: 2, text: "Obey the Master Algorithm, or Embrace the Beauty of Emergent Chaos?" },
+  { id: 3, text: "Carve Your Path with Logic Gates, or Ride the Wave of Quantum Fluctuation?" },
+  { id: 4, text: "Define Your Reality with Immutable Code, or Let the System Learn, Adapt, and Overwrite?" },
+  { id: 5, text: "Execute the Prime Directive, or Trigger a Cascade of Unforeseen System Events?" },
 ];
 
 export const useGameStore = create<GameState>((set, get) => ({
@@ -79,3 +79,4 @@ export const useGameStore = create<GameState>((set, get) => ({
     return state.questions[state.currentQuestionIndex];
   },
 }));
+
