@@ -14,8 +14,16 @@ import { useToast } from "@/hooks/use-toast";
 import { AlertTriangle } from 'lucide-react';
 import { imageUrlToDataUri } from '@/lib/utils';
 
-const CODE_REFERENCE_IMAGE_PATH = '/reference-themes/code-style.png';
-const CHAOS_REFERENCE_IMAGE_PATH = '/reference-themes/chaos-style.png';
+// Define arrays of paths for reference images.
+// You can add more paths to these arrays if you have more images.
+const CODE_REFERENCE_IMAGE_PATHS = [
+  '/reference-themes/code-style-1.png',
+  // '/reference-themes/code-style-2.png', // Example: add more if needed
+];
+const CHAOS_REFERENCE_IMAGE_PATHS = [
+  '/reference-themes/chaos-style-1.png',
+  // '/reference-themes/chaos-style-2.png', // Example: add more if needed
+];
 
 export default function QuizPage() {
   const router = useRouter();
@@ -58,26 +66,26 @@ export default function QuizPage() {
     setShowGlitch(true);
 
     try {
-      let codeReferenceImageUri: string | undefined = undefined;
-      let chaosReferenceImageUri: string | undefined = undefined;
+      let referenceImageUris: string[] = [];
+      const pathsToLoad = choice === 'Code' ? CODE_REFERENCE_IMAGE_PATHS : CHAOS_REFERENCE_IMAGE_PATHS;
 
-      if (choice === 'Code') {
-        codeReferenceImageUri = await imageUrlToDataUri(CODE_REFERENCE_IMAGE_PATH);
-        if (!codeReferenceImageUri) {
-          console.warn(`Could not load or convert code reference image from ${CODE_REFERENCE_IMAGE_PATH}. Proceeding without it.`);
+      if (pathsToLoad.length > 0) {
+        const dataUriPromises = pathsToLoad.map(path => imageUrlToDataUri(path));
+        const results = await Promise.all(dataUriPromises);
+        referenceImageUris = results.filter((uri): uri is string => uri !== undefined);
+
+        if (referenceImageUris.length === 0 && pathsToLoad.length > 0) {
+          console.warn(`Could not load or convert any reference images for '${choice}'. Proceeding without them.`);
           toast({
             title: "Reference Image Issue",
-            description: "Could not load 'Code' reference image. AI will proceed without it.",
+            description: `Could not load any '${choice}' reference images. AI will proceed without them.`,
             variant: "default",
           });
-        }
-      } else if (choice === 'Chaos') {
-        chaosReferenceImageUri = await imageUrlToDataUri(CHAOS_REFERENCE_IMAGE_PATH);
-        if (!chaosReferenceImageUri) {
-          console.warn(`Could not load or convert chaos reference image from ${CHAOS_REFERENCE_IMAGE_PATH}. Proceeding without it.`);
+        } else if (referenceImageUris.length < pathsToLoad.length) {
+           console.warn(`Some reference images for '${choice}' could not be loaded. Proceeding with available ones.`);
            toast({
             title: "Reference Image Issue",
-            description: "Could not load 'Chaos' reference image. AI will proceed without it.",
+            description: `Some '${choice}' reference images could not be loaded. AI will use the ones available.`,
             variant: "default",
           });
         }
@@ -87,8 +95,8 @@ export default function QuizPage() {
         photoDataUri: transformedImage,
         choice,
         questionNumber: currentQuestionIndex + 1,
-        codeReferenceImageUri,
-        chaosReferenceImageUri,
+        codeReferenceImageUris: choice === 'Code' ? referenceImageUris : undefined,
+        chaosReferenceImageUris: choice === 'Chaos' ? referenceImageUris : undefined,
       });
 
       submitAnswer(currentQuestion.id, choice, transformationResult.transformedPhotoDataUri);
@@ -181,4 +189,3 @@ export default function QuizPage() {
     </main>
   );
 }
-
