@@ -26,6 +26,15 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({ onImageCapture, initialPr
     try {
       setError(null);
       setPromptText("ACCESSING REALITY MATRIX...");
+      // Ensure any previous stream is stopped before starting a new one
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      if (videoRef.current && videoRef.current.srcObject) {
+        (videoRef.current.srcObject as MediaStream).getTracks().forEach(track => track.stop());
+        videoRef.current.srcObject = null;
+      }
+
       const mediaStream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
       setStream(mediaStream);
       if (videoRef.current) {
@@ -43,24 +52,29 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({ onImageCapture, initialPr
         variant: "destructive",
       });
     }
-  }, [toast]);
+  }, [toast, stream]); // Added stream to deps of startWebcam to ensure it can clean up old stream
 
   useEffect(() => {
     if (!stream && !capturedImage) {
         startWebcam();
     }
+
+    // Capture the stream instance relevant to this particular effect run
+    const effectInstanceStream = stream;
+
     return () => {
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
-      // Also ensure videoRef srcObject is cleaned up if it was set directly
-      if (videoRef.current && videoRef.current.srcObject) {
-        const currentStream = videoRef.current.srcObject as MediaStream;
-        currentStream.getTracks().forEach(track => track.stop());
-        videoRef.current.srcObject = null;
+      // Only stop the stream if this effect instance "owned" an active stream.
+      // This prevents the cleanup from the very first effect run (where effectInstanceStream would be null)
+      // from stopping the stream that startWebcam() just set on videoRef.current.
+      if (effectInstanceStream) {
+        effectInstanceStream.getTracks().forEach(track => track.stop());
+        if (videoRef.current && videoRef.current.srcObject === effectInstanceStream) {
+          videoRef.current.srcObject = null;
+        }
       }
     };
   }, [startWebcam, stream, capturedImage]);
+
 
   const handleCapture = () => {
     if (videoRef.current && canvasRef.current && stream) {
@@ -73,16 +87,17 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({ onImageCapture, initialPr
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         const imageDataUrl = canvas.toDataURL('image/png');
         setCapturedImage(imageDataUrl);
-        // Stop webcam after capture
+        
+        // Stop webcam stream
         if (stream) {
           stream.getTracks().forEach(track => track.stop());
         }
         if (videoRef.current && videoRef.current.srcObject) {
-           const currentStream = videoRef.current.srcObject as MediaStream;
-           currentStream.getTracks().forEach(track => track.stop());
+           // Explicitly clear videoRef srcObject as well
+           (videoRef.current.srcObject as MediaStream).getTracks().forEach(track => track.stop());
            videoRef.current.srcObject = null;
         }
-        setStream(null);
+        setStream(null); // This will trigger useEffect cleanup for the captured stream
         setPromptText("ASSIMILATING SUBJECT...");
       }
     }
@@ -91,7 +106,9 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({ onImageCapture, initialPr
   const handleRetake = () => {
     setCapturedImage(null);
     setPromptText("RE-CALIBRATING...");
-    startWebcam(); // This will re-request permission and set new stream
+    // The existing stream (if any) will be stopped by the useEffect cleanup
+    // when `startWebcam` sets a new stream, or by `startWebcam` itself.
+    startWebcam(); 
   };
 
   const handleConfirm = () => {
@@ -116,20 +133,17 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({ onImageCapture, initialPr
           muted
           className={cn(
             "w-full h-full object-cover",
-            // Show video if stream is active AND no image is captured. Otherwise hide.
             { 'hidden': !!capturedImage || !stream }
           )}
         />
         {capturedImage && (
           <img src={capturedImage} alt="Captured" className="w-full h-full object-cover absolute inset-0" />
         )}
-        {/* Placeholder for loading state if video is not yet active and no image captured */}
         {!capturedImage && !stream && !error && (
           <div className="absolute inset-0 flex items-center justify-center bg-black">
             <p className="text-xl neon-text-secondary">INITIALIZING CAMERA...</p>
           </div>
         )}
-         {/* Placeholder for error state if video is not available and no image captured */}
         {!capturedImage && !stream && error && (
           <div className="absolute inset-0 flex items-center justify-center bg-black">
             <p className="text-xl text-destructive">WEBCAM ERROR</p>
