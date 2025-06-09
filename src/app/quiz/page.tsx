@@ -353,7 +353,7 @@ export default function QuizPage() {
           </div>
         )}
 
-        <div className="flex flex-col sm:flex-row justify-center gap-6 w-full max-w-lg">
+        <div className="flex flex-col justify-center gap-6 w-full max-w-lg">
           {/* Render answer buttons */}
  {currentQuestion.answers.map((answer, index) => (
  <NeonButton
