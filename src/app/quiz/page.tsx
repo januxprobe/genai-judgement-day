@@ -16,42 +16,44 @@ import { AlertTriangle } from 'lucide-react';
 // =====================================================================================
 // IMPORTANT: PRE-GENERATED THEME DESCRIPTIONS
 // =====================================================================================
-// After running the `describeReferenceTheme` flow for each of your 5 'Code'
-// and 5 'Chaos' reference images, PASTE THE COMBINED DESCRIPTIONS HERE.
-// For example, concatenate all 5 'Code' descriptions into one string for
-// PREGENERATED_CODE_THEME_DESCRIPTION.
+// After generating descriptions for each of your 5 'Code' and 5 'Chaos' reference
+// images (e.g., using Google AI Studio), PASTE THEM INTO THESE ARRAYS.
+// Each string in the array should be the detailed description for ONE reference image.
+// The order in the array will correspond to the question number (index 0 for question 1, etc.).
 //
 // EXAMPLE:
-// const PREGENERATED_CODE_THEME_DESCRIPTION = `
-//   Image 1: Features a chrome robot arm holding a glowing plasma pistol...
-//   Image 2: Shows intricate neon circuit board patterns with orange data streams...
-//   Image 3: Depicts a holographic interface with geometric shapes...
-//   Image 4: Contains a sleek, metallic drone with glowing orange thrusters...
-//   Image 5: Highlights a futuristic cityscape with sharp angles and data conduits...
-// `;
-// const PREGENERATED_CHAOS_THEME_DESCRIPTION = `
-//   Image 1: Displays a glitchy digital entity with fragmented light effects...
-//   Image 2: Shows chaotic energy lines in neon yellow and magenta...
-//   Image 3: Depicts an abstract explosion of distorted pixels and static...
-//   Image 4: Contains a bio-mechanical tendril with pulsating yellow veins...
-//   Image 5: Highlights a fractured reality with overlapping, distorted planes...
-// `;
+// const PREGENERATED_CODE_THEME_DESCRIPTIONS: string[] = [
+//   `Description for Code reference image 1: Features a chrome robot arm...`,
+//   `Description for Code reference image 2: Shows intricate neon circuit patterns...`,
+//   `Description for Code reference image 3: Depicts a holographic interface...`,
+//   `Description for Code reference image 4: Contains a sleek, metallic drone...`,
+//   `Description for Code reference image 5: Highlights a futuristic cityscape...`,
+// ];
+// const PREGENERATED_CHAOS_THEME_DESCRIPTIONS: string[] = [
+//   `Description for Chaos reference image 1: Displays a glitchy digital entity...`,
+//   `Description for Chaos reference image 2: Shows chaotic energy lines...`,
+//   // ... and so on for all 5 images for Chaos
+// ];
 //
 // Ensure these descriptions accurately reflect the objects, props, and style
-// you want to inspire the AI for each theme.
+// you want to inspire the AI for each theme, for each step.
 // =====================================================================================
 
-const PREGENERATED_CODE_THEME_DESCRIPTION: string = `
-PASTE YOUR COMBINED 'CODE' THEME DESCRIPTIONS HERE. 
-This should be a detailed account of objects, props, and thematic elements 
-from your 5 'Code' reference images.
-`;
+const PREGENERATED_CODE_THEME_DESCRIPTIONS: string[] = [
+  "PASTE YOUR 'CODE' THEME DESCRIPTION FOR REFERENCE IMAGE 1 HERE.",
+  "PASTE YOUR 'CODE' THEME DESCRIPTION FOR REFERENCE IMAGE 2 HERE.",
+  "PASTE YOUR 'CODE' THEME DESCRIPTION FOR REFERENCE IMAGE 3 HERE.",
+  "PASTE YOUR 'CODE' THEME DESCRIPTION FOR REFERENCE IMAGE 4 HERE.",
+  "PASTE YOUR 'CODE' THEME DESCRIPTION FOR REFERENCE IMAGE 5 HERE.",
+];
 
-const PREGENERATED_CHAOS_THEME_DESCRIPTION: string = `
-PASTE YOUR COMBINED 'CHAOS' THEME DESCRIPTIONS HERE.
-This should be a detailed account of objects, props, and thematic elements
-from your 5 'Chaos' reference images.
-`;
+const PREGENERATED_CHAOS_THEME_DESCRIPTIONS: string[] = [
+  "PASTE YOUR 'CHAOS' THEME DESCRIPTION FOR REFERENCE IMAGE 1 HERE.",
+  "PASTE YOUR 'CHAOS' THEME DESCRIPTION FOR REFERENCE IMAGE 2 HERE.",
+  "PASTE YOUR 'CHAOS' THEME DESCRIPTION FOR REFERENCE IMAGE 3 HERE.",
+  "PASTE YOUR 'CHAOS' THEME DESCRIPTION FOR REFERENCE IMAGE 4 HERE.",
+  "PASTE YOUR 'CHAOS' THEME DESCRIPTION FOR REFERENCE IMAGE 5 HERE.",
+];
 
 
 export default function QuizPage() {
@@ -95,25 +97,29 @@ export default function QuizPage() {
     setShowGlitch(true);
 
     try {
-      const themeDescription = choice === 'Code' ? PREGENERATED_CODE_THEME_DESCRIPTION : PREGENERATED_CHAOS_THEME_DESCRIPTION;
+      const themeDescriptionsArray = choice === 'Code' ? PREGENERATED_CODE_THEME_DESCRIPTIONS : PREGENERATED_CHAOS_THEME_DESCRIPTIONS;
       
-      // Basic check if placeholder text is still there
-      if (themeDescription.includes("PASTE YOUR COMBINED")) {
-        console.warn(`Warning: Placeholder text found in ${choice.toUpperCase()}_THEME_DESCRIPTION. AI might not use specific details.`);
+      let currentThemeDescription = "";
+      if (themeDescriptionsArray && themeDescriptionsArray.length > 0) {
+        currentThemeDescription = themeDescriptionsArray[currentQuestionIndex % themeDescriptionsArray.length];
+      }
+
+      // Basic check if placeholder text is still there for the current description
+      if (currentThemeDescription.includes("PASTE YOUR") || currentThemeDescription.trim() === "") {
+        console.warn(`Warning: Placeholder text or empty description found for ${choice.toUpperCase()} theme, question ${currentQuestionIndex + 1}. AI might not use specific details for this step.`);
         toast({
-            title: "Theme Description Placeholder",
-            description: `The pre-generated description for '${choice}' theme seems to be a placeholder. Please update it in quiz/page.tsx for best results.`,
+            title: `Theme Description Placeholder (Q${currentQuestionIndex + 1})`,
+            description: `The pre-generated description for '${choice}' theme (image ${currentQuestionIndex + 1}) seems to be a placeholder or empty. Please update it in quiz/page.tsx for best results.`,
             variant: "default",
             duration: 7000,
         });
       }
 
-
       const transformationResult = await transformImage({
         photoDataUri: transformedImage,
         choice,
         questionNumber: currentQuestionIndex + 1,
-        referenceThemeDescription: themeDescription.trim(),
+        referenceThemeDescription: currentThemeDescription.trim(),
       });
 
       submitAnswer(currentQuestion.id, choice, transformationResult.transformedPhotoDataUri);
