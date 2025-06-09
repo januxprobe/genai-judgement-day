@@ -68,6 +68,8 @@ Reference Images for '${themeName}':`
       });
       referenceImageUris.forEach(uri => styleAnalysisPromptParts.push({ media: {url: uri} }));
 
+      console.log("DEBUG: Style Analysis Prompt Parts being sent to AI:", JSON.stringify(styleAnalysisPromptParts, null, 2)); // Added for debugging
+
       try {
         // Use the default text model (e.g., gemini-2.0-flash) for style analysis
         const styleAnalysisResponse = await ai.generate({
@@ -128,7 +130,7 @@ You can also provide a brief text description of the newly generated background 
     });
 
     const {media, text: modelGeneratedText} = await ai.generate({
-      model: 'googleai/gemini-2.0-flash-exp',
+      model: 'googleai/gemini-2.0-flash-exp', // Ensure this is the correct model for image generation
       prompt: finalImagePromptParts,
       config: {
         responseModalities: ['TEXT', 'IMAGE'],
@@ -160,3 +162,5 @@ The user in their original photo was intended to be kept clear, prominent, and u
     };
   }
 );
+
+    
