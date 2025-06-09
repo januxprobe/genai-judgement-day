@@ -40,16 +40,6 @@ export async function transformImage(input: TransformImageInput): Promise<Transf
   return transformImageFlow(input);
 }
 
-// This prompt definition is kept for schema reference but not directly used by ai.generate
-// as the prompt parts are constructed dynamically.
-// The output schema is also defined for the flow's return type.
-const prompt = ai.definePrompt({
-  name: 'transformImagePrompt',
-  input: {schema: TransformImageInputSchema},
-  output: {schema: TransformImageOutputSchema},
-  prompt: `This is a placeholder. The actual prompt is constructed dynamically in the flow.`,
-});
-
 const transformImageFlow = ai.defineFlow(
   {
     name: 'transformImageFlow',
@@ -58,32 +48,35 @@ const transformImageFlow = ai.defineFlow(
   },
   async input => {
     const promptParts: ({text: string} | {media: {url: string}})[] = [];
-    let referenceImagesUsedDescription = "the chosen theme's general style"; // Default
+    let referenceImagesUsedDescription = "the chosen theme's general style";
 
-    // Initial Core Instructions (Text first)
-    let coreInstructions = `**TASK: You are an AI image editor. Your primary goal is to modify the BACKGROUND of the VERY NEXT image provided in this prompt (which is the user's photo).
-    The person (face, body, pose) in this upcoming user's photo MUST remain clear, visible, recognizable, and COMPLETELY UNCHANGED.
-    DO NOT replace, alter, or obscure the person. All thematic elements must be added BEHIND the user or as subtle environmental effects that DO NOT obscure the user in that photo.**\n\n`;
+    // --- Part 1: Instructions for THE USER'S PHOTO ---
+    let initialInstructions = `**PRIMARY TASK: You are an AI image editor. You will edit THE USER'S PHOTO, which is the very next image in this prompt.**
+Your goal is to modify ONLY THE BACKGROUND of THE USER'S PHOTO.
+**CRITICAL RULE FOR THE USER'S PHOTO: The person (their face, body, pose) in THE USER'S PHOTO MUST remain clear, visible, recognizable, and COMPLETELY UNCHANGED.**
+DO NOT replace, alter, or obscure the person in THE USER'S PHOTO. All thematic elements must be added BEHIND the person in THE USER'S PHOTO or as subtle environmental effects in the background of THE USER'S PHOTO that DO NOT obscure them.\n\n`;
 
-    coreInstructions += `User's choice for question #${input.questionNumber}: ${input.choice}.\n`;
+    initialInstructions += `User's choice for question #${input.questionNumber}: ${input.choice}.\n`;
 
     if (input.choice === 'Code') {
-      coreInstructions += `For the 'Code' theme: Add clean, futuristic, structured elements in neon orange (hex #FF8C00) to the BACKGROUND of the user's photo. Think circuit patterns, glowing geometric shapes, or sleek digital interfaces integrated into the scene's background.\n`;
+      initialInstructions += `For the 'Code' theme: Add clean, futuristic, structured elements in neon orange (hex #FF8C00) to the BACKGROUND of THE USER'S PHOTO. Think circuit patterns, glowing geometric shapes, or sleek digital interfaces integrated into the scene's background.\n`;
     } else { // Chaos
-      coreInstructions += `For the 'Chaos' theme: Add glitchy, abstract, aggressive elements in neon yellow (hex #04D9FF) to the BACKGROUND of the user's photo. Think distorted digital artifacts, chaotic energy lines, or fragmented light effects integrated into the scene's background.\n`;
+      initialInstructions += `For the 'Chaos' theme: Add glitchy, abstract, aggressive elements in neon yellow (hex #04D9FF) to the BACKGROUND of THE USER'S PHOTO. Think distorted digital artifacts, chaotic energy lines, or fragmented light effects integrated into the scene's background.\n`;
     }
-    promptParts.push({ text: coreInstructions });
+    promptParts.push({ text: initialInstructions });
 
-    // User's Photo (Image second) - THIS IS THE IMAGE TO EDIT
+    // --- Part 2: THE USER'S PHOTO (The image to be edited) ---
     promptParts.push({ media: {url: input.photoDataUri} });
 
-    // Reference Images and their specific instructions (if any)
+
+    // --- Part 3: Instructions for STYLE REFERENCE IMAGES (if any) ---
     const addReferenceImagesAndInstructions = (uris: string[], themeName: string) => {
       if (uris && uris.length > 0) {
-        let refText = `\n**REFERENCE IMAGES FOR '${themeName}' THEME:** The following image(s) are style references.
-        Use them ONLY as inspiration for designing the BACKGROUND elements to add BEHIND the user in their photo (which was the image provided just before this text block, and after the initial core instructions).
-        DO NOT copy people or foreground subjects from these reference images. The user in their photo must remain the focus and unchanged.\n`;
-        promptParts.push({ text: refText });
+        let refIntroText = `\n**STYLE REFERENCE IMAGES FOR '${themeName}' THEME (OPTIONAL):** The image(s) that follow (if any, after this text block) are STYLE REFERENCES ONLY.
+**DO NOT EDIT THESE STYLE REFERENCE IMAGES.**
+Use them ONLY as inspiration for designing the BACKGROUND elements to add BEHIND the person in THE USER'S PHOTO (which was the first image provided in this prompt, right after the initial instructions).
+DO NOT copy people or foreground subjects from these reference images. The person in THE USER'S PHOTO must remain the focus and unchanged.\n`;
+        promptParts.push({ text: refIntroText });
         uris.forEach(uri => promptParts.push({ media: {url: uri} }));
         referenceImagesUsedDescription = `the style of provided '${themeName}' reference images and the general '${themeName}' theme`;
       }
@@ -95,18 +88,18 @@ const transformImageFlow = ai.defineFlow(
       addReferenceImagesAndInstructions(input.chaosReferenceImageUris, 'Chaos');
     }
 
-    // Final Text Part: Reiterate critical rules and ask for generation
+    // --- Part 4: Final Reminders & Generation Request ---
     promptParts.push({
-      text: `\n**CRITICAL REMINDERS FOR PROCESSING THE USER'S PHOTO (THE IMAGE THAT WAS PROVIDED IMMEDIATELY AFTER THE INITIAL SET OF INSTRUCTIONS):**
-1.  **Preserve the person in THE USER'S PHOTO ENTIRELY (face, body, pose).**
-2.  **All modifications should target the BACKGROUND of THIS USER'S PHOTO ONLY.**
-3.  **Elements inspired by reference images (if any) must be integrated into the BACKGROUND, BEHIND the user in THEIR PHOTO.**
-4.  **DO NOT cover, alter, or replace the user's face or body from THEIR PHOTO. The user must remain the clear, recognizable, and unchanged subject.**
-Generate the transformed image. You can also provide a brief text description of the changes made to the background of the user's original photo.`
+      text: `\n**FINAL CRITICAL REMINDERS FOR EDITING THE USER'S PHOTO (THE VERY FIRST IMAGE PROVIDED IN THIS PROMPT):**
+1.  **The person in THE USER'S PHOTO must be entirely preserved (face, body, pose).**
+2.  **All modifications MUST target the BACKGROUND of THE USER'S PHOTO ONLY.**
+3.  **Any elements inspired by reference images must be integrated into the BACKGROUND of THE USER'S PHOTO, BEHIND the person.**
+4.  **DO NOT cover, alter, or replace the user's face or body from THE USER'S PHOTO. The user must remain the clear, recognizable, and unchanged subject.**
+Now, generate the transformed version of THE USER'S PHOTO based on these instructions. You can also provide a brief text description of the changes made to the background of THE USER'S PHOTO.`
     });
     
     const {media, text: modelGeneratedText} = await ai.generate({
-      model: 'googleai/gemini-2.0-flash-exp', // Sticking to recommended model for Genkit image gen
+      model: 'googleai/gemini-2.0-flash-exp',
       prompt: promptParts,
       config: {
         responseModalities: ['TEXT', 'IMAGE'],
@@ -117,7 +110,6 @@ Generate the transformed image. You can also provide a brief text description of
           { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_LOW_AND_ABOVE' },
         ],
       },
-      // No explicit output schema here to avoid "JSON mode" errors with image models
     });
 
     let transformedPhotoDataUri = media?.url;
@@ -128,7 +120,6 @@ Generate the transformed image. You can also provide a brief text description of
       transformedPhotoDataUri = input.photoDataUri; 
       transformationDescription = "AI image generation failed to return a new image. Displaying the previous image.";
     } else if (!transformationDescription || transformationDescription.trim() === "") {
-        // referenceImagesUsedDescription is updated within addReferenceImagesAndInstructions or uses default
         transformationDescription = `The background of the user's photo was transformed based on their choice of '${input.choice}' for question #${input.questionNumber}, inspired by ${referenceImagesUsedDescription}. The user in their original photo was intended to be kept clear, prominent, and unchanged.`;
     }
     
