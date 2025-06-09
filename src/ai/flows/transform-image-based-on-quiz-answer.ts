@@ -14,6 +14,8 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import * as fs from 'fs/promises';
+import * as path from 'path';
 
 const TransformImageInputSchema = z.object({
   photoDataUri: z
@@ -68,7 +70,15 @@ Reference Images for '${themeName}':`
       });
       referenceImageUris.forEach(uri => styleAnalysisPromptParts.push({ media: {url: uri} }));
 
-      console.log("DEBUG: Style Analysis Prompt Parts being sent to AI:", JSON.stringify(styleAnalysisPromptParts, null, 2)); // Added for debugging
+      console.log("DEBUG: Style Analysis Prompt Parts being sent to AI:", JSON.stringify(styleAnalysisPromptParts, null, 2));
+      try {
+        const logFilePath = path.join(process.cwd(), 'ai_prompt_debug.log');
+        const logContent = `\n\n--- ${new Date().toISOString()} ---\nStyle Analysis Prompt Parts for theme '${themeName}':\n${JSON.stringify(styleAnalysisPromptParts, null, 2)}\n`;
+        await fs.appendFile(logFilePath, logContent);
+        console.log(`DEBUG: Style analysis prompt also logged to ${logFilePath}`);
+      } catch (logError) {
+        console.error("DEBUG: Error logging style analysis prompt to file:", logError);
+      }
 
       try {
         // Use the default text model (e.g., gemini-2.0-flash) for style analysis
@@ -130,7 +140,7 @@ You can also provide a brief text description of the newly generated background 
     });
 
     const {media, text: modelGeneratedText} = await ai.generate({
-      model: 'googleai/gemini-2.0-flash-exp', // Ensure this is the correct model for image generation
+      model: 'googleai/gemini-2.0-flash-exp', 
       prompt: finalImagePromptParts,
       config: {
         responseModalities: ['TEXT', 'IMAGE'],
@@ -162,5 +172,6 @@ The user in their original photo was intended to be kept clear, prominent, and u
     };
   }
 );
+    
 
     
