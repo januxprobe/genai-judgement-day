@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useEffect, useState } from 'react';
@@ -11,6 +12,10 @@ import CrtOverlay from '@/components/crt-overlay';
 import LoadingSpinner from '@/components/loading-spinner';
 import { useToast } from "@/hooks/use-toast";
 import { AlertTriangle } from 'lucide-react';
+import { imageUrlToDataUri } from '@/lib/utils';
+
+const CODE_REFERENCE_IMAGE_PATH = '/reference-themes/code-style.png';
+const CHAOS_REFERENCE_IMAGE_PATH = '/reference-themes/chaos-style.png';
 
 export default function QuizPage() {
   const router = useRouter();
@@ -34,7 +39,7 @@ export default function QuizPage() {
   const [showGlitch, setShowGlitch] = useState(false);
 
   useEffect(() => {
-    if (!transformedImage && !isLoading) { // if there's no image and not loading, means page was reloaded or navigated to directly
+    if (!transformedImage && !isLoading) { 
       toast({
         title: "Session Expired",
         description: "No image found. Redirecting to start.",
@@ -50,13 +55,40 @@ export default function QuizPage() {
 
     setIsLoading(true);
     setError(null);
-    setShowGlitch(true); // Trigger glitch effect
+    setShowGlitch(true);
 
     try {
+      let codeReferenceImageUri: string | undefined = undefined;
+      let chaosReferenceImageUri: string | undefined = undefined;
+
+      if (choice === 'Code') {
+        codeReferenceImageUri = await imageUrlToDataUri(CODE_REFERENCE_IMAGE_PATH);
+        if (!codeReferenceImageUri) {
+          console.warn(`Could not load or convert code reference image from ${CODE_REFERENCE_IMAGE_PATH}. Proceeding without it.`);
+          toast({
+            title: "Reference Image Issue",
+            description: "Could not load 'Code' reference image. AI will proceed without it.",
+            variant: "default",
+          });
+        }
+      } else if (choice === 'Chaos') {
+        chaosReferenceImageUri = await imageUrlToDataUri(CHAOS_REFERENCE_IMAGE_PATH);
+        if (!chaosReferenceImageUri) {
+          console.warn(`Could not load or convert chaos reference image from ${CHAOS_REFERENCE_IMAGE_PATH}. Proceeding without it.`);
+           toast({
+            title: "Reference Image Issue",
+            description: "Could not load 'Chaos' reference image. AI will proceed without it.",
+            variant: "default",
+          });
+        }
+      }
+
       const transformationResult = await transformImage({
         photoDataUri: transformedImage,
         choice,
         questionNumber: currentQuestionIndex + 1,
+        codeReferenceImageUri,
+        chaosReferenceImageUri,
       });
 
       submitAnswer(currentQuestion.id, choice, transformationResult.transformedPhotoDataUri);
@@ -64,11 +96,10 @@ export default function QuizPage() {
       if (currentQuestionIndex < questions.length - 1) {
         nextQuestion();
       } else {
-        // Last question, generate summary
         const summaryResult = await generateSummaryFromImage({
           transformedPhotoDataUri: transformationResult.transformedPhotoDataUri,
         });
-        setSummaryAndTitle(summaryResult.summary, `Judgment: ${choice} Protocol`); // Example title
+        setSummaryAndTitle(summaryResult.summary, `Judgment: ${choice} Protocol`);
         router.push('/results');
       }
     } catch (err) {
@@ -82,19 +113,16 @@ export default function QuizPage() {
       });
     } finally {
       setIsLoading(false);
-      setTimeout(() => setShowGlitch(false), 500); // End glitch effect after animation
+      setTimeout(() => setShowGlitch(false), 500); 
     }
   };
   
   if (!currentQuestion && questions.length > 0 && currentQuestionIndex >= questions.length) {
-     // Quiz finished, but somehow ended up here, redirect.
      router.push('/results');
      return <LoadingSpinner text="Loading Results..." color="primary" />;
   }
 
-
   if (!currentQuestion || !transformedImage) {
-    // This case should ideally be caught by useEffect redirect, but as a fallback:
     return <LoadingSpinner text="INITIALIZING DIRECTIVE..." color="primary" />;
   }
 
@@ -153,3 +181,4 @@ export default function QuizPage() {
     </main>
   );
 }
+
