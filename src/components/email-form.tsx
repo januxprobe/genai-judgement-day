@@ -1,6 +1,7 @@
+
 "use client";
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -22,6 +23,7 @@ interface EmailFormProps {
 
 const EmailForm: React.FC<EmailFormProps> = ({ className }) => {
   const { toast } = useToast();
+  const audioRef = useRef<HTMLAudioElement>(null);
   const form = useForm<EmailFormValues>({
     resolver: zodResolver(emailFormSchema),
     defaultValues: {
@@ -30,6 +32,15 @@ const EmailForm: React.FC<EmailFormProps> = ({ className }) => {
   });
 
   const onSubmit: SubmitHandler<EmailFormValues> = (data) => {
+    if (audioRef.current) {
+      const audioElement = audioRef.current;
+      audioElement.load(); // Ensure it's ready to play
+      audioElement.play().catch(error => {
+        console.error("Audio play failed for ill-be-back.mp3:", error);
+        // Proceed with form submission even if audio fails
+      });
+    }
+
     console.log('Company Email Submitted:', data.companyEmail);
     // Here you would typically send the email to your backend
     toast({
@@ -65,6 +76,7 @@ const EmailForm: React.FC<EmailFormProps> = ({ className }) => {
           {form.formState.isSubmitting ? "TRANSMITTING..." : "RECEIVE YOUR VERDICT"}
         </NeonButton>
       </form>
+      <audio ref={audioRef} src="/assets/audio/ill-be-back.mp3" preload="auto" />
     </Form>
   );
 };
