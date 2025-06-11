@@ -32,22 +32,46 @@ const EmailForm: React.FC<EmailFormProps> = ({ className }) => {
   });
 
   const onSubmit: SubmitHandler<EmailFormValues> = (data) => {
+    const performSubmitActions = () => {
+      console.log('Company Email Submitted:', data.companyEmail);
+      toast({
+        title: "Transmission Received",
+        description: `Thank you. Your verdict for ${data.companyEmail} will be logged.`,
+      });
+      form.reset();
+    };
+
     if (audioRef.current) {
       const audioElement = audioRef.current;
-      audioElement.load(); // Ensure it's ready to play
-      audioElement.play().catch(error => {
-        console.error("Audio play failed for ill-be-back.mp3:", error);
-        // Proceed with form submission even if audio fails
-      });
-    }
 
-    console.log('Company Email Submitted:', data.companyEmail);
-    // Here you would typically send the email to your backend
-    toast({
-      title: "Transmission Received",
-      description: `Thank you. Your verdict for ${data.companyEmail} will be logged.`,
-    });
-    form.reset();
+      // Ensure listeners from previous attempts are cleared
+      const newAudioElement = audioElement.cloneNode(true) as HTMLAudioElement;
+      audioRef.current = newAudioElement; // Update ref if needed, though direct manipulation is fine
+
+      const handleAudioEndOrError = () => {
+        newAudioElement.removeEventListener('ended', handleAudioEndOrError);
+        newAudioElement.removeEventListener('error', audioErrorListener);
+        performSubmitActions();
+      };
+      
+      const audioErrorListener = (event: Event) => {
+        console.error("Audio element error event:", event);
+        handleAudioEndOrError();
+      };
+
+      newAudioElement.addEventListener('ended', handleAudioEndOrError);
+      newAudioElement.addEventListener('error', audioErrorListener);
+      
+      newAudioElement.load(); // Important to load before play
+      newAudioElement.play().catch(error => {
+        console.error("Audio play() promise rejected for ill-be-back.mp3:", error);
+        // Call handler directly if play() promise itself rejects
+        // (e.g. browser interrupted, no user interaction, etc.)
+        handleAudioEndOrError();
+      });
+    } else {
+      performSubmitActions(); // Audio ref not found or audio not supported
+    }
   };
 
   return (
@@ -76,6 +100,11 @@ const EmailForm: React.FC<EmailFormProps> = ({ className }) => {
           {form.formState.isSubmitting ? "TRANSMITTING..." : "RECEIVE YOUR VERDICT"}
         </NeonButton>
       </form>
+      {/* 
+        The audio element is referenced. Using a key here could also help ensure it's "fresh" 
+        if there were issues with re-using the same element, but cloning and re-adding listeners 
+        in the handler is a more direct approach for this specific scenario.
+      */}
       <audio ref={audioRef} src="/assets/audio/ill-be-back.mp3" preload="auto" />
     </Form>
   );
