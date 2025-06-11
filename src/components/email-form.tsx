@@ -32,8 +32,10 @@ const EmailForm: React.FC<EmailFormProps> = ({ className }) => {
   });
 
   const onSubmit: SubmitHandler<EmailFormValues> = (data) => {
+    console.log("EmailForm onSubmit triggered. Data:", data);
+
     const performSubmitActions = () => {
-      console.log('Company Email Submitted:', data.companyEmail);
+      console.log("Performing submit actions: Toast and Form Reset for", data.companyEmail);
       toast({
         title: "Transmission Received",
         description: `Thank you. Your verdict for ${data.companyEmail} will be logged.`,
@@ -43,35 +45,48 @@ const EmailForm: React.FC<EmailFormProps> = ({ className }) => {
 
     if (audioRef.current) {
       const audioElement = audioRef.current;
+      console.log("Audio element found:", audioElement);
 
-      // Defined once, captures audioElement from this specific onSubmit call
-      const handleAudioEnd = () => {
-        cleanupAndProceed();
-      };
-
-      const handleAudioError = (event: Event) => {
-        console.error("Audio playback error:", event);
-        cleanupAndProceed();
-      };
-      
-      const cleanupAndProceed = () => {
-        audioElement.removeEventListener('ended', handleAudioEnd);
-        audioElement.removeEventListener('error', handleAudioError);
+      // This function will be called once playback is done or an error occurs.
+      // It's responsible for cleaning up the event listener and proceeding.
+      const audioPlaybackHandler = () => {
+        console.log("audioPlaybackHandler called.");
+        // Important: Remove the listener to prevent it from firing multiple times
+        // if the submit button is clicked again before the audio finishes.
+        audioElement.removeEventListener('ended', audioPlaybackHandler);
         performSubmitActions();
       };
-
-      // Add event listeners for this specific attempt
-      audioElement.addEventListener('ended', handleAudioEnd);
-      audioElement.addEventListener('error', handleAudioError);
       
-      audioElement.load(); // Important to load before play
-      audioElement.play().catch(error => {
-        console.error("Audio play() promise rejected for ill-be-back.mp3:", error);
-        // If play() promise rejects, ensure we still cleanup and proceed
-        cleanupAndProceed();
-      });
+      // Add the 'ended' event listener.
+      // This specific instance of audioPlaybackHandler will be used.
+      audioElement.addEventListener('ended', audioPlaybackHandler);
+      
+      try {
+        console.log("Attempting to load and play audio: /assets/audio/ill-be-back.mp3");
+        audioElement.load(); // Ensure it's loaded
+        const playPromise = audioElement.play();
+
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            console.log("Audio playback started successfully via promise.");
+            // Playback started, 'ended' event will call audioPlaybackHandler
+          }).catch(error => {
+            console.error("Audio play() promise rejected:", error);
+            // If play() fails, call the handler to proceed with submit actions
+            audioPlaybackHandler(); 
+          });
+        } else {
+          // Fallback for browsers that might not return a promise (very old)
+          console.log("play() did not return a promise. Relying on 'ended' event.");
+        }
+      } catch (e) {
+        console.error("Synchronous error during audio play setup:", e);
+        // Fallback for any unexpected synchronous errors
+        audioPlaybackHandler(); 
+      }
     } else {
-      performSubmitActions(); // Audio ref not found or audio not supported
+      console.log("Audio ref not found. Performing submit actions directly.");
+      performSubmitActions();
     }
   };
 
