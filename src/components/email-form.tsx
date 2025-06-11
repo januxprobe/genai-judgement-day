@@ -31,75 +31,62 @@ const EmailForm: React.FC<EmailFormProps> = ({ className }) => {
     },
   });
 
-  const onSubmit: SubmitHandler<EmailFormValues> = (data) => {
-    console.log("EmailForm onSubmit triggered. Data:", data.companyEmail);
-
-    const performSubmitActions = () => {
-      console.log("Performing submit actions: Toast and Form Reset for", data.companyEmail);
-      toast({
-        title: "Transmission Received",
-        description: `Thank you. Your verdict for ${data.companyEmail} will be logged.`,
-      });
-      form.reset();
-    };
-
+  const handleAudioPlayback = () => {
     if (audioRef.current) {
       const audioElement = audioRef.current;
-      console.log("Audio element found:", audioElement);
-      let hasProceeded = false; // Flag to prevent multiple executions
+      console.log("NeonButton onClick: Attempting to play audio...");
 
-      const cleanupAndProceed = () => {
-        if (hasProceeded) {
-            console.log("cleanupAndProceed: Already proceeded.");
-            return;
-        }
-        hasProceeded = true;
-        console.log("cleanupAndProceed called. Removing 'ended' listener.");
-        audioElement.removeEventListener('ended', handleAudioEnd);
-        performSubmitActions();
+      // Using a flag to prevent multiple calls to cleanup/proceed if events fire closely
+      let audioActionCompleted = false;
+      const onAudioAttemptFinished = () => {
+        if (audioActionCompleted) return;
+        audioActionCompleted = true;
+        console.log("NeonButton onClick: Audio attempt finished (played or error).");
+        audioElement.removeEventListener('ended', onAudioAttemptFinished);
+        // No further action needed here for button click audio
       };
-
-      const handleAudioEnd = () => {
-        console.log("Audio 'ended' event fired.");
-        cleanupAndProceed();
-      };
-
-      // Remove any previous listeners to be safe, though a new ref instance shouldn't have them.
-      audioElement.removeEventListener('ended', handleAudioEnd); 
-      audioElement.addEventListener('ended', handleAudioEnd);
+      
+      audioElement.removeEventListener('ended', onAudioAttemptFinished); // Clean up previous if any
+      audioElement.addEventListener('ended', onAudioAttemptFinished);
       
       try {
-        console.log("Attempting to load audio: /assets/audio/ill-be-back.mp3");
+        console.log("NeonButton onClick: Loading audio: /assets/audio/ill-be-back.mp3");
         audioElement.load(); 
-        console.log("Attempting to play audio...");
         const playPromise = audioElement.play();
 
         if (playPromise !== undefined) {
           playPromise.then(() => {
-            console.log("Audio playback started successfully via promise.");
-            // If playback starts and ends, 'ended' event will call cleanupAndProceed
+            console.log("NeonButton onClick: Audio playback started successfully via promise.");
           }).catch(error => {
-            console.error("Audio play() promise rejected:", error);
-            cleanupAndProceed(); // Proceed if play() fails
+            console.error("NeonButton onClick: Audio play() promise rejected:", error);
+            onAudioAttemptFinished(); 
           });
         } else {
-          // Fallback for browsers that might not return a promise (very old)
-          console.warn("play() did not return a promise. Relying on 'ended' event or error during load.");
-          // For robustness, consider adding an 'error' listener on audioElement too, which also calls cleanupAndProceed.
+           console.warn("NeonButton onClick: play() did not return a promise.");
+           // For very old browsers, rely on 'ended' or 'error' events on audioElement
         }
       } catch (e) {
-        console.error("Synchronous error during audio play setup:", e);
-        cleanupAndProceed(); // Proceed on synchronous error
+        console.error("NeonButton onClick: Synchronous error during audio play setup:", e);
+        onAudioAttemptFinished();
       }
     } else {
-      console.log("Audio ref not found. Performing submit actions directly.");
-      performSubmitActions();
+      console.log("NeonButton onClick: Audio ref not found.");
     }
+  };
+
+  const handleFormSubmit: SubmitHandler<EmailFormValues> = (data) => {
+    // This function is only called if form validation is successful
+    console.log("EmailForm handleFormSubmit triggered. Data:", data.companyEmail);
+    toast({
+      title: "Transmission Received",
+      description: `Thank you. Your verdict for ${data.companyEmail} will be logged.`,
+    });
+    form.reset();
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className={`space-y-6 ${className}`}>
+      <form onSubmit={form.handleSubmit(handleFormSubmit)} className={`space-y-6 ${className}`}>
         <FormField
           control={form.control}
           name="companyEmail"
@@ -118,7 +105,13 @@ const EmailForm: React.FC<EmailFormProps> = ({ className }) => {
             </FormItem>
           )}
         />
-        <NeonButton type="submit" neonColor="primary" className="w-full" disabled={form.formState.isSubmitting}>
+        <NeonButton 
+          type="submit" 
+          neonColor="primary" 
+          className="w-full" 
+          disabled={form.formState.isSubmitting}
+          onClick={handleAudioPlayback} // Play audio on any click
+        >
           <Mail className="mr-2 h-6 w-6" />
           {form.formState.isSubmitting ? "TRANSMITTING..." : "RECEIVE YOUR VERDICT"}
         </NeonButton>
