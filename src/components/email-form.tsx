@@ -32,50 +32,31 @@ const EmailForm: React.FC<EmailFormProps> = ({ className }) => {
   });
 
   const handleAudioPlayback = () => {
+    console.log("NeonButton onClick: handleAudioPlayback CALLED."); // First log
     if (audioRef.current) {
+      console.log("NeonButton onClick: audioRef.current IS VALID.");
       const audioElement = audioRef.current;
-      console.log("NeonButton onClick: Attempting to play audio...");
+      console.log("NeonButton onClick: Attempting to load audio:", audioElement.src);
+      audioElement.load();
+      const playPromise = audioElement.play();
 
-      // Using a flag to prevent multiple calls to cleanup/proceed if events fire closely
-      let audioActionCompleted = false;
-      const onAudioAttemptFinished = () => {
-        if (audioActionCompleted) return;
-        audioActionCompleted = true;
-        console.log("NeonButton onClick: Audio attempt finished (played or error).");
-        audioElement.removeEventListener('ended', onAudioAttemptFinished);
-        // No further action needed here for button click audio
-      };
-      
-      audioElement.removeEventListener('ended', onAudioAttemptFinished); // Clean up previous if any
-      audioElement.addEventListener('ended', onAudioAttemptFinished);
-      
-      try {
-        console.log("NeonButton onClick: Loading audio: /assets/audio/ill-be-back.mp3");
-        audioElement.load(); 
-        const playPromise = audioElement.play();
-
-        if (playPromise !== undefined) {
-          playPromise.then(() => {
-            console.log("NeonButton onClick: Audio playback started successfully via promise.");
-          }).catch(error => {
-            console.error("NeonButton onClick: Audio play() promise rejected:", error);
-            onAudioAttemptFinished(); 
-          });
-        } else {
-           console.warn("NeonButton onClick: play() did not return a promise.");
-           // For very old browsers, rely on 'ended' or 'error' events on audioElement
-        }
-      } catch (e) {
-        console.error("NeonButton onClick: Synchronous error during audio play setup:", e);
-        onAudioAttemptFinished();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          console.log("NeonButton onClick: Audio playback started successfully via promise.");
+        }).catch(error => {
+          console.error("NeonButton onClick: Audio play() promise rejected:", error);
+        });
+      } else {
+         console.warn("NeonButton onClick: play() did not return a promise (older browser?).");
       }
     } else {
-      console.log("NeonButton onClick: Audio ref not found.");
+      console.error("NeonButton onClick: audioRef.current IS NULL.");
     }
   };
 
   const handleFormSubmit: SubmitHandler<EmailFormValues> = (data) => {
     // This function is only called if form validation is successful
+    // The audio playback is now handled by the button's direct onClick
     console.log("EmailForm handleFormSubmit triggered. Data:", data.companyEmail);
     toast({
       title: "Transmission Received",
@@ -94,10 +75,10 @@ const EmailForm: React.FC<EmailFormProps> = ({ className }) => {
             <FormItem>
               <FormLabel className="text-xl neon-text-secondary uppercase">Enter Your Company Email:</FormLabel>
               <FormControl>
-                <Input 
-                  type="email" 
-                  placeholder="name@company.com" 
-                  {...field} 
+                <Input
+                  type="email"
+                  placeholder="name@company.com"
+                  {...field}
                   className="bg-input border-primary text-foreground placeholder:text-muted-foreground focus:ring-secondary text-lg py-6 px-4"
                 />
               </FormControl>
@@ -105,10 +86,10 @@ const EmailForm: React.FC<EmailFormProps> = ({ className }) => {
             </FormItem>
           )}
         />
-        <NeonButton 
-          type="submit" 
-          neonColor="primary" 
-          className="w-full" 
+        <NeonButton
+          type="submit"
+          neonColor="primary"
+          className="w-full"
           disabled={form.formState.isSubmitting}
           onClick={handleAudioPlayback} // Play audio on any click
         >
