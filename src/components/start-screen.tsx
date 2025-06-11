@@ -50,7 +50,7 @@ export function StartScreen({ onStart }: StartScreenProps) {
     >
         <CrtOverlay />
         <div className="max-w-xl flex flex-col items-center gap-6">
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-headline neon-text-primary uppercase glitch-text" data-text="GENAI JUDGMENT DAY">
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-headline neon-text-primary uppercase glitch-text whitespace-nowrap" data-text="GENAI JUDGMENT DAY">
                 GENAI JUDGMENT DAY
             </h1>
 
