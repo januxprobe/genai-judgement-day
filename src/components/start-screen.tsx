@@ -67,10 +67,10 @@ export function StartScreen({ onStart }: StartScreenProps) {
             </div>
 
             <p className="text-xl md:text-2xl neon-text-secondary">
-                Your face is the key. Your choices are the code.
+                Your face is the key. Your choices are the AI.
             </p>
             <p className="text-lg text-white/80">
-                Answer 10 questions to witness your transformation. Will you uphold the order of 'Code' or embrace the freedom of 'Chaos'?
+                Answer the questions to witness your transformation. Will you align with the systematic TerminAEtor or the unpredictable TerminAItor?
             </p>
 
             <NeonButton

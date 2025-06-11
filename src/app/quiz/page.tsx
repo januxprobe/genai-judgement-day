@@ -16,7 +16,7 @@ import { AlertTriangle } from 'lucide-react';
 // =====================================================================================
 // PRE-GENERATED THEME DESCRIPTIONS
 // =====================================================================================
-const PREGENERATED_CODE_THEME_DESCRIPTIONS: string[] = [
+const PREGENERATED_TERMINAETOR_THEME_DESCRIPTIONS: string[] = [ // Renamed from PREGENERATED_CODE_THEME_DESCRIPTIONS
   `Specific Objects, Props, and Visual Elements:
 Futuristic Armor/Exoskeleton:
 The image features a sophisticated, form-fitting suit of white and black armor. The overall design is sleek, modern, and modular.
@@ -134,7 +134,7 @@ Holographic User Interfaces: To complement the act of using a laptop, the backgr
 Vehicle Hangar/Engineering Bay: A setting where "AE" technology is developed or maintained. The background could feature partially assembled vehicles, drones, or other robotics, with technicians in similar suits working at orange-accented consoles.`,
 ];
 
-const PREGENERATED_CHAOS_THEME_DESCRIPTIONS: string[] = [
+const PREGENERATED_TERMINAITOR_THEME_DESCRIPTIONS: string[] = [ // Renamed from PREGENERATED_CHAOS_THEME_DESCRIPTIONS
   `Specific Objects, Props, and Visual Elements:
 The image is a close-up of a highly detailed, metallic humanoid endoskeleton, famously recognized as the T-800 from the Terminator franchise.
 Endoskeleton Head: The head is a terrifyingly accurate robotic replica of a human skull.
@@ -254,7 +254,7 @@ export default function QuizPage() {
     }
   }, [transformedImage, isLoading, router, toast, resetGame]);
 
-  const handleAnswer = async (choice: 'Code' | 'Chaos') => {
+  const handleAnswer = async (choice: 'TerminAEtor' | 'TerminAItor') => {
     if (!currentQuestion || !transformedImage) return;
 
     setIsLoading(true);
@@ -262,7 +262,7 @@ export default function QuizPage() {
     setShowGlitch(true);
 
     try {
-      const themeDescriptionsArray = choice === 'Code' ? PREGENERATED_CODE_THEME_DESCRIPTIONS : PREGENERATED_CHAOS_THEME_DESCRIPTIONS;
+      const themeDescriptionsArray = choice === 'TerminAEtor' ? PREGENERATED_TERMINAETOR_THEME_DESCRIPTIONS : PREGENERATED_TERMINAITOR_THEME_DESCRIPTIONS;
       
       let currentThemeDescription = "";
       if (themeDescriptionsArray && themeDescriptionsArray.length > currentQuestionIndex) {
@@ -297,7 +297,7 @@ export default function QuizPage() {
         const summaryResult = await generateSummaryFromImage({
           transformedPhotoDataUri: transformationResult.transformedPhotoDataUri,
         });
-        setSummaryAndTitle(summaryResult.summary, `Judgment: ${choice} Protocol`);
+        setSummaryAndTitle(summaryResult.summary, `Judgment: ${choice}`);
         router.push('/results');
       }
     } catch (err) {
@@ -353,19 +353,18 @@ export default function QuizPage() {
           </div>
         )}
 
-        <div className="flex flex-col justify-center gap-6 w-full max-w-lg">
-          {/* Render answer buttons */}
- {currentQuestion.answers.map((answer, index) => (
- <NeonButton
- key={index}
- neonColor={answer.protocol === 'Code' ? 'primary' : 'secondary'}
- onClick={() => handleAnswer(answer.protocol)}
- disabled={isLoading}
- className="w-full sm:flex-1"
- >
- {answer.text}
- </NeonButton>
- ))}
+        <div className="flex flex-col sm:flex-row justify-center gap-6 w-full max-w-lg">
+          {currentQuestion.answers.map((answer, index) => (
+            <NeonButton
+              key={index}
+              neonColor={answer.protocol === 'TerminAEtor' ? 'primary' : 'secondary'}
+              onClick={() => handleAnswer(answer.protocol)}
+              disabled={isLoading}
+              className="w-full sm:flex-1"
+            >
+              {answer.text}
+            </NeonButton>
+          ))}
         </div>
         
         {isLoading && (
