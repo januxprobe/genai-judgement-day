@@ -1,9 +1,11 @@
+
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import Image from 'next/image';
 import NeonButton from '@/components/neon-button';
 import CrtOverlay from './crt-overlay';
+import { cn } from '@/lib/utils';
 
 type StartScreenProps = {
   onStart: () => void;
@@ -11,8 +13,11 @@ type StartScreenProps = {
 
 export function StartScreen({ onStart }: StartScreenProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
+  const [showGlitch, setShowGlitch] = useState(false);
 
   const handleStartClick = () => {
+    setShowGlitch(true); // Activate glitch effect
+
     if (audioRef.current) {
       const audioElement = audioRef.current;
 
@@ -30,7 +35,7 @@ export function StartScreen({ onStart }: StartScreenProps) {
       audioElement.load();
       audioElement.play().catch(error => {
         console.error("Audio play failed:", error);
-        cleanupAndProceed();
+        cleanupAndProceed(); // Proceed even if audio fails
       });
     } else {
       onStart();
@@ -38,7 +43,11 @@ export function StartScreen({ onStart }: StartScreenProps) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center text-center text-white p-4 z-10">
+    <div className={cn(
+        "flex flex-col items-center justify-center text-center text-white p-4 z-10 min-h-screen",
+        showGlitch ? 'glitch-transition' : ''
+      )}
+    >
         <CrtOverlay />
         <div className="max-w-xl flex flex-col items-center gap-6">
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-headline neon-text-primary uppercase glitch-text" data-text="AI Destiny Mirror">
@@ -52,6 +61,7 @@ export function StartScreen({ onStart }: StartScreenProps) {
                     layout="fill"
                     objectFit="cover"
                     className="opacity-80"
+                    data-ai-hint="robot human"
                 />
                 <CrtOverlay />
             </div>
