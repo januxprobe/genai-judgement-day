@@ -49,23 +49,29 @@ const EmailForm: React.FC<EmailFormProps> = ({ className }) => {
       let hasProceeded = false; // Flag to prevent multiple executions
 
       const cleanupAndProceed = () => {
-        if (hasProceeded) return;
+        if (hasProceeded) {
+            console.log("cleanupAndProceed: Already proceeded.");
+            return;
+        }
         hasProceeded = true;
-        console.log("cleanupAndProceed called");
+        console.log("cleanupAndProceed called. Removing 'ended' listener.");
         audioElement.removeEventListener('ended', handleAudioEnd);
         performSubmitActions();
       };
 
       const handleAudioEnd = () => {
-        console.log("Audio ended event fired");
+        console.log("Audio 'ended' event fired.");
         cleanupAndProceed();
       };
 
+      // Remove any previous listeners to be safe, though a new ref instance shouldn't have them.
+      audioElement.removeEventListener('ended', handleAudioEnd); 
       audioElement.addEventListener('ended', handleAudioEnd);
       
       try {
-        console.log("Attempting to load and play audio: /assets/audio/ill-be-back.mp3");
+        console.log("Attempting to load audio: /assets/audio/ill-be-back.mp3");
         audioElement.load(); 
+        console.log("Attempting to play audio...");
         const playPromise = audioElement.play();
 
         if (playPromise !== undefined) {
@@ -78,11 +84,8 @@ const EmailForm: React.FC<EmailFormProps> = ({ className }) => {
           });
         } else {
           // Fallback for browsers that might not return a promise (very old)
-          console.log("play() did not return a promise. Relying on 'ended' event or error during load.");
-          // In this case, if load() itself errors or if ended doesn't fire, we might not proceed.
-          // However, modern browsers should return a promise.
-          // If no promise and no 'ended' event, this might stall.
-          // For robustness, consider adding an 'error' listener on audioElement too.
+          console.warn("play() did not return a promise. Relying on 'ended' event or error during load.");
+          // For robustness, consider adding an 'error' listener on audioElement too, which also calls cleanupAndProceed.
         }
       } catch (e) {
         console.error("Synchronous error during audio play setup:", e);
