@@ -146,7 +146,7 @@ export default function ResultsPage() {
                               </div>
                               <blockquote className={`italic text-foreground/90 border-l-4 ${quoteBorderColor} pl-4 py-2 text-base flex-grow`}>
                                 <p>"{chosenAnswerText}"</p>
-                                <footer className={`text-sm not-italic ${attributionColor} mt-2 font-headline`}>- {answerEntry.choice} Protocol</footer>
+                                <footer className={`text-sm not-italic ${attributionColor} mt-2 font-headline`}>- {answerEntry.choice}</footer>
                               </blockquote>
                             </div>
                           </li>
