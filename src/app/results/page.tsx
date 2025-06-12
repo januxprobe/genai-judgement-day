@@ -105,9 +105,7 @@ export default function ResultsPage() {
               <CardContent>
                 <VerdictAnalysis />
                 
-                <CardDescription className="text-lg text-foreground leading-relaxed whitespace-pre-wrap mt-6 pt-6 border-t border-border">
-                  {summary || "No summary available."}
-                </CardDescription>
+                {/* Removed summary CardDescription from here */}
                 
                 {gameStoreAnswers && gameStoreAnswers.length > 0 && (
                   <div className="mt-6 pt-6 border-t border-border">
