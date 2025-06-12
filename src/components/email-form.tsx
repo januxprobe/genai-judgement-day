@@ -54,15 +54,37 @@ const EmailForm: React.FC<EmailFormProps> = ({ className }) => {
     }
   };
 
-  const handleFormSubmit: SubmitHandler<EmailFormValues> = (data) => {
-    // This function is only called if form validation is successful
-    // The audio playback is now handled by the button's direct onClick
-    console.log("EmailForm handleFormSubmit triggered. Data:", data.companyEmail);
-    toast({
-      title: "Transmission Received",
-      description: `Thank you. Your verdict for ${data.companyEmail} will be logged.`,
-    });
-    form.reset();
+  const handleFormSubmit: SubmitHandler<EmailFormValues> = async (data) => {
+    try {
+      const response = await fetch('/api/save-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: data.companyEmail }),
+      });
+
+      if (response.ok) {
+        toast({
+          title: "Transmission Received",
+          description: `Thank you. Your verdict for ${data.companyEmail} will be logged.`,
+        });
+        form.reset();
+      } else {
+        toast({
+          title: "Error",
+          description: "There was an error saving your email. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      toast({
+        title: "Error",
+        description: "There was an error submitting the form. Please check the console for details.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
