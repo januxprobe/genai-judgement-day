@@ -11,6 +11,7 @@ import CrtOverlay from '@/components/crt-overlay';
 import NeonButton from '@/components/neon-button';
 import LoadingSpinner from '@/components/loading-spinner';
 import { ArrowLeft } from 'lucide-react';
+import VerdictAnalysis from '@/components/verdict-analysis';
 
 export default function ResultsPage() {
   const router = useRouter();
@@ -102,7 +103,9 @@ export default function ResultsPage() {
                 <CardTitle className="text-3xl neon-text-secondary uppercase">Verdict & Analysis</CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription className="text-lg text-foreground leading-relaxed whitespace-pre-wrap">
+                <VerdictAnalysis />
+                
+                <CardDescription className="text-lg text-foreground leading-relaxed whitespace-pre-wrap mt-6 pt-6 border-t border-border">
                   {summary || "No summary available."}
                 </CardDescription>
                 
