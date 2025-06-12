@@ -51,7 +51,7 @@ export function StartScreen({ onStart }: StartScreenProps) {
         <CrtOverlay />
         <div className="max-w-xl flex flex-col items-center gap-6">
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-headline neon-text-primary uppercase glitch-text whitespace-nowrap" data-text="GENAI JUDGMENT DAY">
-                GENAI JUDGMENT DAY
+                GENAI JUDGEMENT DAY
             </h1>
 
             <div className="relative w-full max-w-md aspect-[4/3] bg-black border-2 border-primary rounded-lg shadow-[0_0_15px_theme(colors.primary.DEFAULT)] overflow-hidden my-4">

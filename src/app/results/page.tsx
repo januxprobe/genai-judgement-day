@@ -189,7 +189,10 @@ export default function ResultsPage() {
 
             <Card className="bg-card border-primary shadow-[0_0_10px_theme(colors.primary.DEFAULT)]">
               <CardHeader>
-                <CardTitle className="text-3xl neon-text-primary uppercase">Secure Your Record</CardTitle>
+                <CardTitle className="text-3xl neon-text-primary uppercase">Continue Your Mission</CardTitle>
+                <CardDescription className="text-lg text-foreground/80 pt-2">
+                  You've been judged by the protocols. Now, learn to command them. Download our whitepaper on Gen AI and Virtual Assistants to master the strategies behind a successful deployment.
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <EmailForm />
