@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useEffect, useState } from 'react';
@@ -59,8 +60,8 @@ export default function ResultsPage() {
           </h1>
         </header>
 
-        <div className="grid md:grid-cols-2 gap-8 items-start">
-          <Card className="bg-card border-primary shadow-[0_0_15px_theme(colors.primary.DEFAULT)]">
+        <div className="flex flex-col gap-8 items-center md:items-stretch">
+          <Card className="bg-card border-primary shadow-[0_0_15px_theme(colors.primary.DEFAULT)] w-full max-w-md md:max-w-xl lg:max-w-2xl mx-auto">
             <CardHeader>
               <CardTitle className="text-3xl neon-text-primary uppercase">{title || "Final Transformation"}</CardTitle>
             </CardHeader>
@@ -72,7 +73,7 @@ export default function ResultsPage() {
             </CardContent>
           </Card>
 
-          <div className="space-y-8">
+          <div className="space-y-8 w-full max-w-md md:max-w-xl lg:max-w-2xl mx-auto">
             <Card className="bg-card border-secondary shadow-[0_0_15px_theme(colors.secondary.DEFAULT)]">
               <CardHeader>
                 <CardTitle className="text-3xl neon-text-secondary uppercase">Verdict & Analysis</CardTitle>
