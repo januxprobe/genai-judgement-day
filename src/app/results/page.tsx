@@ -14,7 +14,7 @@ import { ArrowLeft } from 'lucide-react';
 
 export default function ResultsPage() {
   const router = useRouter();
-  const { transformedImage, summary, title, isLoading, resetGame } = useGameStore();
+  const { transformedImage, summary, title: gameStoreTitle, isLoading, resetGame } = useGameStore();
   const [showGlitch, setShowGlitch] = useState(true); // Start with glitch on load
 
   useEffect(() => {
@@ -30,6 +30,24 @@ export default function ResultsPage() {
     resetGame();
     router.push('/');
   };
+
+  let pageStaticTitle = "Judgment Rendered";
+  let verdictSuffix = "";
+  let titleColorClass = "neon-text-primary"; // Default to orange
+
+  if (gameStoreTitle) {
+    if (gameStoreTitle.includes("TerminAEtor")) {
+      verdictSuffix = "TerminAEtor"; // Correct capitalization
+      titleColorClass = "neon-text-primary";
+    } else if (gameStoreTitle.includes("TerminAItor")) {
+      verdictSuffix = "TerminAItor"; // Correct capitalization
+      titleColorClass = "neon-text-secondary";
+    }
+  }
+
+  const fullPageTitle = verdictSuffix ? `${pageStaticTitle}: ${verdictSuffix}` : pageStaticTitle;
+  const dataTextGlitch = fullPageTitle.toUpperCase();
+
 
   if (isLoading) {
     return (
@@ -55,17 +73,15 @@ export default function ResultsPage() {
       <CrtOverlay className="fixed inset-0" />
       <div className="z-10 w-full max-w-5xl mx-auto space-y-8">
         <header className="text-center mb-8">
-          <h1 className="text-5xl md:text-6xl font-headline neon-text-primary uppercase glitch-text" data-text="Judgment Rendered">
-            Judgment Rendered
+          <h1 className={`text-5xl md:text-6xl font-headline uppercase glitch-text ${titleColorClass}`} data-text={dataTextGlitch}>
+            {fullPageTitle}
           </h1>
         </header>
 
         <div className="flex flex-col gap-8 items-center md:items-stretch">
           <Card className="bg-card border-primary shadow-[0_0_15px_theme(colors.primary.DEFAULT)] w-full max-w-md md:max-w-xl lg:max-w-2xl mx-auto">
-            <CardHeader>
-              <CardTitle className="text-3xl neon-text-primary uppercase">{title || "Final Transformation"}</CardTitle>
-            </CardHeader>
-            <CardContent className="relative aspect-[4/3] w-full overflow-hidden rounded-b-lg">
+            {/* CardHeader and CardTitle removed from here */}
+            <CardContent className="relative aspect-[4/3] w-full overflow-hidden rounded-lg"> {/* Ensure rounding is applied here if header is gone */}
               {transformedImage && (
                 <Image src={transformedImage} alt="Final transformed image" layout="fill" objectFit="cover" />
               )}
