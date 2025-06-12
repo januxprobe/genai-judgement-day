@@ -129,12 +129,13 @@ export default function ResultsPage() {
                         
                         const quoteBorderColor = answerEntry.choice === 'TerminAEtor' ? 'border-primary' : 'border-secondary';
                         const attributionColor = answerEntry.choice === 'TerminAEtor' ? 'text-primary/90' : 'text-secondary/90';
+                        const avatarBorderColor = answerEntry.choice === 'TerminAEtor' ? 'border-primary' : 'border-secondary';
 
                         return (
                           <li key={index} className="flex flex-col space-y-3 p-4 bg-background/30 rounded-md border border-muted">
                             <p className="font-semibold text-xl text-foreground text-center neon-text-primary">Directive {index + 1}: <span className="text-foreground/90">{questionAsked.text}</span></p>
                             <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-3 sm:space-y-0 sm:space-x-4">
-                              <div className="relative w-32 h-32 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 border-primary flex-shrink-0">
+                              <div className={`relative w-32 h-32 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 ${avatarBorderColor} flex-shrink-0`}>
                                 <Image 
                                   src={avatarUrl} 
                                   alt={avatarAlt} 
