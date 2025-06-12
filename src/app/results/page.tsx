@@ -39,7 +39,7 @@ export default function ResultsPage() {
     router.push('/');
   };
 
-  let pageStaticTitle = "Judgment Rendered";
+  let pageStaticTitle = "Judgement Rendered";
   let verdictSuffix = "";
   let titleColorClass = "neon-text-primary"; 
 
@@ -64,7 +64,7 @@ export default function ResultsPage() {
     return (
        <main className="flex-grow flex flex-col items-center justify-center p-4 md:p-8 min-h-screen relative overflow-hidden">
          <CrtOverlay className="fixed inset-0" />
-         <LoadingSpinner text="COMPILING JUDGMENT..." color="primary" />
+         <LoadingSpinner text="COMPILING JUDGEMENT..." color="primary" />
        </main>
     );
   }
@@ -73,7 +73,7 @@ export default function ResultsPage() {
      return (
         <main className="flex-grow flex flex-col items-center justify-center p-4 md:p-8 min-h-screen relative overflow-hidden">
             <CrtOverlay className="fixed inset-0" />
-            <p className="text-2xl neon-text-primary">No judgment data found. Redirecting...</p>
+            <p className="text-2xl neon-text-primary">No judgement data found. Redirecting...</p>
         </main>
      );
   }
