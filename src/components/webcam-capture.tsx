@@ -40,7 +40,7 @@ const WebcamCapture: React.FC<WebcamCaptureProps> = ({ onImageCapture, initialPr
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
       }
-      setPromptText("POSITION YOURSELF FOR JUDGMENT");
+      setPromptText("POSITION YOURSELF FOR JUDGEMENT");
     } catch (err) {
       console.error("Error accessing webcam:", err);
       const errorMessage = err instanceof Error ? err.message : "Unknown error";
