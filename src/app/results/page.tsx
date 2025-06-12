@@ -10,7 +10,7 @@ import EmailForm from '@/components/email-form';
 import CrtOverlay from '@/components/crt-overlay';
 import NeonButton from '@/components/neon-button';
 import LoadingSpinner from '@/components/loading-spinner';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Rocket } from 'lucide-react';
 import VerdictAnalysis from '@/components/verdict-analysis';
 
 export default function ResultsPage() {
@@ -21,16 +21,15 @@ export default function ResultsPage() {
     title: gameStoreTitle, 
     isLoading, 
     resetGame,
-    questions: gameStoreQuestions, // Actual questions asked in this game session
-    answers: gameStoreAnswers // User's answers from this game session
+    questions: gameStoreQuestions, 
+    answers: gameStoreAnswers 
   } = useGameStore();
-  const [showGlitch, setShowGlitch] = useState(true); // Start with glitch on load
+  const [showGlitch, setShowGlitch] = useState(true); 
 
   useEffect(() => {
-    if (!transformedImage && !isLoading) { // if there's no image and not loading
+    if (!transformedImage && !isLoading) { 
       router.push('/');
     }
-    // Disable glitch after a short period
     const timer = setTimeout(() => setShowGlitch(false), 500);
     return () => clearTimeout(timer);
   }, [transformedImage, isLoading, router]);
@@ -42,14 +41,14 @@ export default function ResultsPage() {
 
   let pageStaticTitle = "Judgment Rendered";
   let verdictSuffix = "";
-  let titleColorClass = "neon-text-primary"; // Default to orange
+  let titleColorClass = "neon-text-primary"; 
 
   if (gameStoreTitle) {
     if (gameStoreTitle.includes("TerminAEtor")) {
-      verdictSuffix = "TerminAEtor"; // Correct capitalization
+      verdictSuffix = "TerminAEtor"; 
       titleColorClass = "neon-text-primary";
     } else if (gameStoreTitle.includes("TerminAItor")) {
-      verdictSuffix = "TerminAItor"; // Correct capitalization
+      verdictSuffix = "TerminAItor"; 
       titleColorClass = "neon-text-secondary";
     }
   }
@@ -57,6 +56,9 @@ export default function ResultsPage() {
   const fullPageTitle = verdictSuffix ? `${pageStaticTitle}: ${verdictSuffix}` : pageStaticTitle;
   const dataTextGlitch = fullPageTitle.toUpperCase();
 
+  const aetorCount = gameStoreAnswers.filter(a => a.choice === 'TerminAEtor').length;
+  const totalAnswers = gameStoreAnswers.length;
+  const terminAEtorPercentage = totalAnswers > 0 ? Math.round((aetorCount / totalAnswers) * 100) : 0;
 
   if (isLoading) {
     return (
@@ -68,7 +70,6 @@ export default function ResultsPage() {
   }
   
   if (!transformedImage) {
-     // This will be handled by redirect in useEffect, but good to have a fallback.
      return (
         <main className="flex-grow flex flex-col items-center justify-center p-4 md:p-8 min-h-screen relative overflow-hidden">
             <CrtOverlay className="fixed inset-0" />
@@ -89,7 +90,7 @@ export default function ResultsPage() {
 
         <div className="flex flex-col gap-8 items-center md:items-stretch">
           <Card className="bg-card border-primary shadow-[0_0_15px_theme(colors.primary.DEFAULT)] w-full max-w-md md:max-w-xl lg:max-w-2xl mx-auto">
-            <CardContent className="relative aspect-[4/3] w-full overflow-hidden rounded-lg p-0"> {/* p-0 if no header */}
+            <CardContent className="relative aspect-[4/3] w-full overflow-hidden rounded-lg p-0">
               {transformedImage && (
                 <Image src={transformedImage} alt="Final transformed image" layout="fill" objectFit="cover" />
               )}
@@ -104,8 +105,6 @@ export default function ResultsPage() {
               </CardHeader>
               <CardContent>
                 <VerdictAnalysis />
-                
-                {/* Removed summary CardDescription from here */}
                 
                 {gameStoreAnswers && gameStoreAnswers.length > 0 && (
                   <div className="mt-6 pt-6 border-t border-border">
@@ -155,6 +154,35 @@ export default function ResultsPage() {
                       })}
                     </ul>
                   </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="bg-card border-primary shadow-[0_0_10px_theme(colors.primary.DEFAULT)]">
+              <CardHeader>
+                <CardTitle className="text-3xl neon-text-primary uppercase flex items-center">
+                  {terminAEtorPercentage === 100 ? (
+                    <>
+                      <CheckCircle className="mr-3 h-8 w-8 text-primary" />
+                      Perfection Achieved!
+                    </>
+                  ) : (
+                    <>
+                      <Rocket className="mr-3 h-8 w-8 text-primary" />
+                      Path to TerminAEtor
+                    </>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {terminAEtorPercentage === 100 ? (
+                  <p className="text-lg text-foreground/90 leading-relaxed">
+                    Congratulations! You've achieved <strong className="neon-text-primary">100% TerminAEtor</strong> alignment! You embody the precision, strategy, and excellence that <span className='neon-text-primary font-bold'>AE</span> strives for in all AI endeavors. Welcome to the future, built on solid code and clear vision!
+                  </p>
+                ) : (
+                  <p className="text-lg text-foreground/90 leading-relaxed">
+                    You're on your way with <strong className="neon-text-primary">{terminAEtorPercentage}% TerminAEtor</strong> alignment, but there's always room to refine your protocols! At <span className='neon-text-primary font-bold'>AE</span>, we specialize in transforming potential into precision. Our expert guidance and robust AI solutions can help you bridge the gap, ensuring your strategies are systematic, your implementations flawless, and your AI initiatives deliver maximum value. Let <span className='neon-text-primary font-bold'>AE</span> help you reach 100% TerminAEtor status!
+                  </p>
                 )}
               </CardContent>
             </Card>
