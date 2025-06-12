@@ -4,7 +4,7 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useGameStore } from '@/lib/store';
+import { useGameStore, initialQuestions, type QuizQuestion } from '@/lib/store';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import EmailForm from '@/components/email-form';
 import CrtOverlay from '@/components/crt-overlay';
@@ -14,7 +14,15 @@ import { ArrowLeft } from 'lucide-react';
 
 export default function ResultsPage() {
   const router = useRouter();
-  const { transformedImage, summary, title: gameStoreTitle, isLoading, resetGame } = useGameStore();
+  const { 
+    transformedImage, 
+    summary, 
+    title: gameStoreTitle, 
+    isLoading, 
+    resetGame,
+    questions: gameStoreQuestions, // Actual questions asked in this game session
+    answers: gameStoreAnswers // User's answers from this game session
+  } = useGameStore();
   const [showGlitch, setShowGlitch] = useState(true); // Start with glitch on load
 
   useEffect(() => {
@@ -80,8 +88,7 @@ export default function ResultsPage() {
 
         <div className="flex flex-col gap-8 items-center md:items-stretch">
           <Card className="bg-card border-primary shadow-[0_0_15px_theme(colors.primary.DEFAULT)] w-full max-w-md md:max-w-xl lg:max-w-2xl mx-auto">
-            {/* CardHeader and CardTitle removed from here */}
-            <CardContent className="relative aspect-[4/3] w-full overflow-hidden rounded-lg"> {/* Ensure rounding is applied here if header is gone */}
+            <CardContent className="relative aspect-[4/3] w-full overflow-hidden rounded-lg p-0"> {/* p-0 if no header */}
               {transformedImage && (
                 <Image src={transformedImage} alt="Final transformed image" layout="fill" objectFit="cover" />
               )}
@@ -98,6 +105,55 @@ export default function ResultsPage() {
                 <CardDescription className="text-lg text-foreground leading-relaxed whitespace-pre-wrap">
                   {summary || "No summary available."}
                 </CardDescription>
+                
+                {gameStoreAnswers && gameStoreAnswers.length > 0 && (
+                  <div className="mt-6 pt-6 border-t border-border">
+                    <h3 className="text-2xl font-headline neon-text-primary mb-6 text-center uppercase">Your Protocol Path:</h3>
+                    <ul className="space-y-8">
+                      {gameStoreAnswers.map((answerEntry, index) => {
+                        const questionAsked = gameStoreQuestions.find(q => q.id === answerEntry.questionId);
+                        const originalQuestionDetails = initialQuestions.find(q => q.id === answerEntry.questionId);
+                        
+                        if (!questionAsked || !originalQuestionDetails) return null;
+
+                        const chosenAnswerObject = originalQuestionDetails.answers.find(ans => ans.protocol === answerEntry.choice);
+                        const chosenAnswerText = chosenAnswerObject ? chosenAnswerObject.text : "Answer text not found.";
+                        
+                        const avatarUrl = answerEntry.choice === 'TerminAEtor' 
+                          ? "/assets/images/terminaetor-avatar.png" 
+                          : "/assets/images/terminaitor-avatar.png";
+                        
+                        const avatarAlt = answerEntry.choice === 'TerminAEtor' 
+                          ? "TerminAEtor Avatar" 
+                          : "TerminAItor Avatar";
+                        
+                        const quoteBorderColor = answerEntry.choice === 'TerminAEtor' ? 'border-primary' : 'border-secondary';
+                        const attributionColor = answerEntry.choice === 'TerminAEtor' ? 'text-primary/90' : 'text-secondary/90';
+
+                        return (
+                          <li key={index} className="flex flex-col space-y-3 p-4 bg-background/30 rounded-md border border-muted">
+                            <p className="font-semibold text-xl text-foreground text-center neon-text-primary">Directive {index + 1}: <span className="text-foreground/90">{questionAsked.text}</span></p>
+                            <div className="flex flex-col sm:flex-row items-center sm:items-start space-y-3 sm:space-y-0 sm:space-x-4">
+                              <div className="relative w-16 h-16 sm:w-12 sm:h-12 rounded-full overflow-hidden border-2 border-primary flex-shrink-0">
+                                <Image 
+                                  src={avatarUrl} 
+                                  alt={avatarAlt} 
+                                  layout="fill" 
+                                  objectFit="cover" 
+                                  data-ai-hint={answerEntry.choice === 'TerminAEtor' ? "robot orange" : "robot cyan"}
+                                />
+                              </div>
+                              <blockquote className={`italic text-foreground/90 border-l-4 ${quoteBorderColor} pl-4 py-2 text-base flex-grow`}>
+                                <p>"{chosenAnswerText}"</p>
+                                <footer className={`text-sm not-italic ${attributionColor} mt-2 font-headline`}>- {answerEntry.choice} Protocol</footer>
+                              </blockquote>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -121,3 +177,4 @@ export default function ResultsPage() {
     </main>
   );
 }
+
