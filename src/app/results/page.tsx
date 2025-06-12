@@ -39,22 +39,18 @@ export default function ResultsPage() {
     router.push('/');
   };
 
-  let pageStaticTitle = "Judgement Rendered";
-  let verdictSuffix = "";
+  
   let titleColorClass = "neon-text-primary"; 
 
   if (gameStoreTitle) {
     if (gameStoreTitle.includes("TerminAEtor")) {
-      verdictSuffix = "TerminAEtor"; 
       titleColorClass = "neon-text-primary";
     } else if (gameStoreTitle.includes("TerminAItor")) {
-      verdictSuffix = "TerminAItor"; 
       titleColorClass = "neon-text-secondary";
     }
   }
 
-  const fullPageTitle = verdictSuffix ? `${pageStaticTitle}: ${verdictSuffix}` : pageStaticTitle;
-  const dataTextGlitch = fullPageTitle.toUpperCase();
+  const dataTextGlitch = "YOUR GENAI VERDICT";
 
   const aetorCount = gameStoreAnswers.filter(a => a.choice === 'TerminAEtor').length;
   const totalAnswers = gameStoreAnswers.length;
@@ -84,7 +80,7 @@ export default function ResultsPage() {
       <div className="z-10 w-full max-w-5xl mx-auto space-y-8">
         <header className="text-center mb-8">
           <h1 className={`text-5xl md:text-6xl font-headline uppercase glitch-text ${titleColorClass}`} data-text={dataTextGlitch}>
-            {fullPageTitle}
+            YOUR GENAI VERDICT
           </h1>
         </header>
 
