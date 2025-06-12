@@ -55,23 +55,27 @@ You will be given "THE USER PHOTO". This photo contains a REAL HUMAN USER, poten
 Your primary goals are:
 1.  **IDENTIFY and PERFECTLY PRESERVE THE REAL HUMAN USER'S ACTUAL HUMAN FACE, BODY FORM, AND POSE** in "THE USER PHOTO". Their ACTUAL HUMAN FACE, body form (shape), and pose MUST remain **100% UNCHANGED, COMPLETELY CLEAR, AND UNOBSCURED** in the foreground. The user's actual human face is paramount and must not be altered, covered by helmets, or turned into a robot. Their actual human facial features must be perfectly retained.
 2.  **AUGMENT THE EXISTING BACKGROUND OF "THE USER PHOTO" BY ADDING NEW AI-GENERATED ELEMENTS *BEHIND* THE PRESERVED USER.** Integrate these new elements thematically into the scene that is already present in "THE USER PHOTO". Do NOT completely replace the entire background. The goal is to add to and evolve what's already there, behind the user.
-3.  The new elements added to the background MUST be inspired by the chosen theme: **${themeName}**. Crucially, add some fitting robots or other characters described by the theme INTO THE BACKGROUND SCENERY, behind the user.
-`;
+`; 
+
+/*
+3.  The new elements added to the background MUST be inspired by the chosen theme: **${themeName}**.
+Crucially, add some fitting robots or other characters described by the theme INTO THE BACKGROUND SCENERY, behind the user.
+*/
 
     if (input.referenceThemeDescription && input.referenceThemeDescription.trim()) {
-      coreInstructions += `\n4.  When augmenting the background, **incorporate specific objects, props, or stylistic elements mentioned in the following theme description INTO THE EXISTING BACKGROUND SCENE BEHIND THE USER**: "${input.referenceThemeDescription}".`;
+      coreInstructions += `\n3.  When augmenting the background, **incorporate specific objects, props, or stylistic elements mentioned in the following theme description INTO THE EXISTING BACKGROUND SCENE BEHIND THE USER**: "${input.referenceThemeDescription}".`;
       coreInstructions += `\n    **ABSOLUTELY CRITICAL CLARIFICATION REGARDING THEME DESCRIPTIONS AND THE USER'S FACE:** If this theme description mentions any elements that could be applied to a head or face (e.g., helmets, masks, robotic eyes, specific facial structures for characters), these details are **EXCLUSIVELY FOR ROBOTS OR CHARACTERS DEPICTED IN THE NEWLY AUGMENTED BACKGROUND ONLY (BEHIND THE USER)**. These elements MUST NOT, under any circumstances, be applied to THE REAL HUMAN USER'S ACTUAL HUMAN FACE in "THE USER PHOTO". The user's actual human face MUST remain entirely untouched, unobscured, and unchanged from the original photo. Any characters, robots, or figures mentioned in the theme description should appear IN THE BACKGROUND, separate from and behind the user, and should incorporate such thematic head/face elements if described. Ensure these background characters/robots fit the described theme.`;
       console.log(`Using pre-generated reference description for '${themeName}' for additive background changes BEHIND user. Emphasizing face preservation, including robots.`);
-    } else {
+    } /*else {
       if (themeName === 'TerminAEtor') {
         coreInstructions += `\n4.  The new background elements for 'TerminAEtor' to be added *behind the user* should feature clean, futuristic, structured elements, possibly incorporating neon orange (hex #FF8C00) accents. Think circuit patterns, glowing geometric shapes, sleek digital interfaces, or advanced AE-built robotic constructs. Crucially, add some fitting robots or drones (e.g. sleek, technological, orderly, AE-branded) into this evolving background scene, behind the user.`;
       } else { // TerminAItor
         coreInstructions += `\n4.  The new background elements for 'TerminAItor' to be added *behind the user* should feature glitchy, abstract, aggressive, and unpredictable elements, possibly incorporating neon yellow/cyan (hex #04D9FF) accents. Think distorted digital artifacts, chaotic energy lines, fragmented light effects, or rogue AI constructs. Crucially, add some fitting robots (e.g. damaged, rogue, industrial, or uniquely self-modified AI entities) into this evolving background scene, behind the user.`;
       }
       console.log(`No pre-generated reference description provided for '${themeName}'. Using default theme description for additive background changes BEHIND user and background robots.`);
-    }
+    }*/
      coreInstructions += `\n\n**CRITICAL RULE 1: THE REAL HUMAN USER'S ACTUAL HUMAN FACE, BODY FORM, AND POSE from "THE USER PHOTO" MUST NOT BE ALTERED, REPLACED, MODIFIED, OR OBSCURED IN ANY WAY. They must remain clearly identifiable as the human they were in the original photo, in the foreground.**`;
-     coreInstructions += `\n**CRITICAL RULE 2: Only their background is to be additively augmented *BEHIND THEM*. All thematic elements from any descriptions (robots, machinery, characters, etc.) are part of this augmented background scene and must not cover or change the user, especially their face. New background elements should integrate with the existing background that is behind the user.**`;
+     //coreInstructions += `\n**CRITICAL RULE 2: Only their background is to be additively augmented *BEHIND THEM*. All thematic elements from any descriptions (robots, machinery, characters, etc.) are part of this augmented background scene and must not cover or change the user, especially their face. New background elements should integrate with the existing background that is behind the user.**`;
 
 
     finalImagePromptParts.push({ text: coreInstructions });
@@ -82,7 +86,7 @@ Your primary goals are:
     finalImagePromptParts.push({
       text: `\n\n**FINAL INSTRUCTION: Generate the image.**
 1.  Take THE HUMAN USER from "THE USER PHOTO". Ensure THEIR ACTUAL HUMAN FACE, BODY FORM, AND POSE are perfectly preserved, unchanged, and unobscured in the foreground.
-2.  Take the original background from "THE USER PHOTO" (the scene behind the user) and augment it by adding new AI-generated elements *behind* the preserved user. These elements should be inspired by the '${themeName}' theme and incorporate specific objects/styles from the provided reference theme description (if any), or the default stylistic cues for '${themeName}' if no specific description is provided. This includes adding thematic ROBOTS/CHARACTERS into the background scene, behind the user.
+2.  Take the original background from "THE USER PHOTO" (the scene behind the user) and augment it by adding new AI-generated elements *behind* the preserved user. These elements should be inspired by the '${themeName}' theme and incorporate specific objects/styles from the provided reference theme description (if any), or the default stylistic cues for '${themeName}' if no specific description is provided.
 3.  All generated elements (including any robots or thematic characters from descriptions) MUST ONLY be in this new, additively augmented background, BEHIND the preserved human user. ABSOLUTELY NO ELEMENTS SHOULD COVER, OBSCURE, OR REMOVE THE USER'S ACTUAL HUMAN FACE.
 You can also provide a brief text description of the newly generated image, detailing changes to the background, how it incorporates the theme, adds robots/characters, and how it evolves from any previous state.`
     });
