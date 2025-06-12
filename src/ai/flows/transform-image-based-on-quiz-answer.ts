@@ -64,7 +64,7 @@ Crucially, add some fitting robots or other characters described by the theme IN
 
     if (input.referenceThemeDescription && input.referenceThemeDescription.trim()) {
       coreInstructions += `\n3.  When augmenting the background, **incorporate specific objects, props, or stylistic elements mentioned in the following theme description INTO THE EXISTING BACKGROUND SCENE BEHIND THE USER**: "${input.referenceThemeDescription}".`;
-      coreInstructions += `\n    **ABSOLUTELY CRITICAL CLARIFICATION REGARDING THEME DESCRIPTIONS AND THE USER'S FACE:** If this theme description mentions any elements that could be applied to a head or face (e.g., helmets, masks, robotic eyes, specific facial structures for characters), these details are **EXCLUSIVELY FOR ROBOTS OR CHARACTERS DEPICTED IN THE NEWLY AUGMENTED BACKGROUND ONLY (BEHIND THE USER)**. These elements MUST NOT, under any circumstances, be applied to THE REAL HUMAN USER'S ACTUAL HUMAN FACE in "THE USER PHOTO". The user's actual human face MUST remain entirely untouched, unobscured, and unchanged from the original photo. Any characters, robots, or figures mentioned in the theme description should appear IN THE BACKGROUND, separate from and behind the user, and should incorporate such thematic head/face elements if described. Ensure these background characters/robots fit the described theme.`;
+      coreInstructions += `\n    **ABSOLUTELY CRITICAL CLARIFICATION REGARDING THEME DESCRIPTIONS AND THE USER'S FACE:** If this theme description mentions any elements that could be applied to a head or face (e.g., helmets, masks, robotic eyes, specific facial structures for characters), these details are **EXCLUSIVELY FOR ROBOTS OR CHARACTERS DEPICTED IN THE NEWLY AUGMENTED BACKGROUND ONLY (BEHIND THE USER)**. These elements MUST NOT, under any circumstances, be applied to THE REAL HUMAN USER'S ACTUAL HUMAN FACE in "THE USER PHOTO". The user's actual human face MUST remain entirely untouched, unobscured, and unchanged from the original photo. Any characters, robots, or figures mentioned in the theme description should appear IN THE BACKGROUND, separate from and behind the user, and should incorporate such thematic head/face elements if described. Ensure these background characters fit the described theme.`;
       console.log(`Using pre-generated reference description for '${themeName}' for additive background changes BEHIND user. Emphasizing face preservation, including robots.`);
     } /*else {
       if (themeName === 'TerminAEtor') {
@@ -75,22 +75,25 @@ Crucially, add some fitting robots or other characters described by the theme IN
       console.log(`No pre-generated reference description provided for '${themeName}'. Using default theme description for additive background changes BEHIND user and background robots.`);
     }*/
      coreInstructions += `\n\n**CRITICAL RULE 1: THE REAL HUMAN USER'S ACTUAL HUMAN FACE, BODY FORM, AND POSE from "THE USER PHOTO" MUST NOT BE ALTERED, REPLACED, MODIFIED, OR OBSCURED IN ANY WAY. They must remain clearly identifiable as the human they were in the original photo, in the foreground.**`;
-     //coreInstructions += `\n**CRITICAL RULE 2: Only their background is to be additively augmented *BEHIND THEM*. All thematic elements from any descriptions (robots, machinery, characters, etc.) are part of this augmented background scene and must not cover or change the user, especially their face. New background elements should integrate with the existing background that is behind the user.**`;
+     coreInstructions += `\n**CRITICAL RULE 2: Only their background is to be additively augmented *BEHIND THEM*. All thematic elements from any descriptions (robots, machinery, characters, etc.) are part of this augmented background scene and must not cover or change the user, especially their face. New background elements should integrate with the existing background that is behind the user.**`;
 
 
     finalImagePromptParts.push({ text: coreInstructions });
 
-    finalImagePromptParts.push({ text: "\n\n**THE USER PHOTO (This is the base image. Identify the human user. Keep their ACTUAL HUMAN FACE, BODY FORM, AND POSE 100% unchanged and unobscured in the foreground. Augment the background *behind* them by adding new thematic elements and robots/characters):**" });
-    finalImagePromptParts.push({ media: {url: input.photoDataUri} });
+    //finalImagePromptParts.push({ text: "\n\n**THE USER PHOTO (This is the base image. Identify the human user. Keep their ACTUAL HUMAN FACE, BODY FORM, AND POSE 100% unchanged and unobscured in the foreground. Augment the background *behind* them by adding new thematic elements and characters):**" });
+    //finalImagePromptParts.push({ media: {url: input.photoDataUri} });
     
     finalImagePromptParts.push({
       text: `\n\n**FINAL INSTRUCTION: Generate the image.**
 1.  Take THE HUMAN USER from "THE USER PHOTO". Ensure THEIR ACTUAL HUMAN FACE, BODY FORM, AND POSE are perfectly preserved, unchanged, and unobscured in the foreground.
-2.  Take the original background from "THE USER PHOTO" (the scene behind the user) and augment it by adding new AI-generated elements *behind* the preserved user. These elements should be inspired by the '${themeName}' theme and incorporate specific objects/styles from the provided reference theme description (if any), or the default stylistic cues for '${themeName}' if no specific description is provided.
-3.  All generated elements (including any robots or thematic characters from descriptions) MUST ONLY be in this new, additively augmented background, BEHIND the preserved human user. ABSOLUTELY NO ELEMENTS SHOULD COVER, OBSCURE, OR REMOVE THE USER'S ACTUAL HUMAN FACE.
-You can also provide a brief text description of the newly generated image, detailing changes to the background, how it incorporates the theme, adds robots/characters, and how it evolves from any previous state.`
+2.  Take the original background from "THE USER PHOTO" (the scene behind the user) and augment it by adding new AI-generated elements *behind* the preserved user. 
+3.  All generated elements MUST ONLY be in this new, additively augmented background, BEHIND the preserved human user. ABSOLUTELY NO ELEMENTS SHOULD COVER, OBSCURE, OR REMOVE THE USER'S ACTUAL HUMAN FACE.
+You can also provide a brief text description of the newly generated image, detailing changes to the background, how it incorporates the theme, adds characters, and how it evolves from any previous state.`
     });
+//These elements should be inspired by the '${themeName}' theme and incorporate specific objects/styles from the provided reference theme description (if any), or the default stylistic cues for '${themeName}' if no specific description is provided.
 
+    finalImagePromptParts.push({ media: {url: input.photoDataUri} });
+    
     console.log("DEBUG: Final Image Generation - Prompt Parts being sent to AI (contains data URIs):", JSON.stringify(finalImagePromptParts, null, 2));
 
     const {media, text: modelGeneratedText} = await ai.generate({
@@ -115,7 +118,7 @@ You can also provide a brief text description of the newly generated image, deta
       transformedPhotoDataUri = input.photoDataUri;
       transformationDescription = "AI image generation failed to return a new image. Displaying the previous image. The user's face, body, and pose should have remained unchanged. Background elements should have been additively placed behind the user.";
     } else if (!transformationDescription || transformationDescription.trim() === "") {
-        transformationDescription = `The user's photo was transformed. The background was additively augmented *behind them*, including new thematic robots/characters in the background.
+        transformationDescription = `The user's photo was transformed. The background was additively augmented *behind them*, including new thematic characters in the background.
 This was inspired by ${input.referenceThemeDescription && input.referenceThemeDescription.trim() ? "a pre-generated theme description: "+input.referenceThemeDescription : "the general '"+input.choice+"' theme"}.
 The human user in their original photo, critically their actual human face, body form, and pose, was intended to be kept clear, prominent, and completely unchanged and unobscured in the foreground.`;
     }
