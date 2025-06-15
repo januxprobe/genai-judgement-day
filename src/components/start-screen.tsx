@@ -58,10 +58,11 @@ export function StartScreen({ onStart }: StartScreenProps) {
                 <Image
                     src="/assets/images/ae-terminator-face-off.png"
                     alt="Face off between a human and a terminator"
-                    layout="fill"
-                    objectFit="cover"
-                    className="opacity-80"
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className="object-cover opacity-80"
                     data-ai-hint="robot human"
+                    priority
                 />
                 <CrtOverlay />
             </div>
