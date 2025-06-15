@@ -17,91 +17,16 @@ import { AlertTriangle } from 'lucide-react';
 // PRE-GENERATED THEME DESCRIPTIONS
 // =====================================================================================
 const PREGENERATED_TERMINAETOR_THEME_DESCRIPTIONS: string[] = [
-  `Objects, Props, and Items:
-Thatched Beach Umbrella (Palapa): A large, rustic-style umbrella dominates the left side of the scene. It features a thick central pole made of unfinished, light brown wood. The umbrella's canopy is a dense, shaggy thatch made from dried, overlapping palm fronds in shades of golden-yellow and weathered brown.
-Modern Lounge Chairs: Two matching chaise lounges are positioned in the shade of the umbrella. They have sleek, minimalist frames made of a silver or light gray metal. The seating surface is a taut, woven fabric in a neutral light beige or tan color.
-Distinct Visual Elements:
-Pristine White Sand: The beach is composed of very fine, bright white sand, appearing soft and powdery.
-Umbrella Shadow: A distinct, dark, cool-toned shadow is cast by the palapa onto the white sand, anchoring the chairs and umbrella in the scene.
-Tropical Ocean Water: The sea displays a prominent color gradient. It begins as a pale, translucent turquoise near the shoreline, deepens into a vibrant aquamarine, and transitions to a darker blue towards the horizon.
-Distant Waves: Far out on the water, there are small white lines indicating gentle waves or ripples on the ocean surface.
-Vibrant Blue Sky: The sky is a vast expanse of a deep, highly saturated, clear blue.
-Fluffy Clouds: A few scattered, bright white, puffy cumulus clouds are visible low in the sky, just above the horizon line.
-Artistic Style:
-The overall artistic style is that of idealized, high-definition travel photography. It is characterized by its exceptionally vibrant and saturated colors, high contrast, and pristine, picture-perfect composition, designed to evoke a sense of a perfect tropical paradise or luxury vacation.`,
-  `Objects, Props, and Items:
-Two Palm Trees: Two prominent, tall palm trees stand on the right side of the beach. Their trunks are slender and brownish-gray. The fronds are lush and feathery, in shades of vibrant green and golden-yellow where they are hit by sunlight.
-Small Tropical Plant: In the very bottom right corner, the spiky green fronds of a small, low-lying plant (possibly a young palm or shrub) are visible.
-Distinct Visual Elements:
-Golden-Beige Sand: The beach is made of fine, soft-looking sand with a warm, light golden-beige hue.
-Palm Tree Shadows: The two palm trees cast long, distinct, and spiky shadows across the sand, indicating strong, direct sunlight.
-Multi-hued Ocean: The ocean displays a clear and beautiful gradient of colors. It begins with a line of white seafoam at the water's edge, followed by a band of pale, translucent turquoise, which deepens into a vibrant cerulean and finally settles into a deep, rich blue at the horizon.
-Gentle Waves and Seafoam: A thin layer of white seafoam marks where the gentle waves wash onto the shore.
-Dynamic Sky: The sky is a vivid blue, slightly lighter near the horizon. It is filled with a variety of clouds, including soft, puffy white cumulus clouds and thin, wispy cirrus clouds streaking across the upper left portion of the frame.
-Artistic Style:
-The image exhibits the style of idealized, high-definition travel photography. The composition is picturesque, and the colors are highly saturated and vibrant to create an inviting and perfect vision of a tropical paradise. The lighting is bright and clear, emphasizing the clean lines and vivid colors of the landscape.`,
-  `Objects, Props, and Items:
-Coupe Glass: The drink is served in a wide-mouthed, shallow coupe-style cocktail glass with a long, elegant, clear glass stem and a simple, flat base.
-Fruit Garnish Skewer: A garnish rests across the rim of the glass, held together by a thin, transparent cocktail pick.
-Cut Strawberries: The garnish includes two pieces of fresh, red strawberry. One piece on the far left is sliced and fanned out, resting directly on the glass rim. Another chunk of strawberry is skewered.
-Pineapple Chunk: A bright yellow, fibrous chunk of pineapple is on the skewer.
-Kiwi Slice: A green slice of kiwi, showing its distinctive pattern of black seeds, is also on the skewer.
-Caramel Candy: At the end of the skewer is a small, rectangular, light-brown candy, likely a caramel or toffee, with a molded, geometric pattern on its surface.
-Distinct Visual Elements:
-Blended Pink Cocktail: The glass is filled with a thick, opaque, reddish-pink beverage, likely a frozen or blended cocktail like a strawberry daiquiri.
-Frothy Texture: The drink has a frothy, slushy texture, with a lighter-colored layer of foam visible at the surface.
-Studio Lighting: The glass and its contents are lit with strong, focused lighting that creates bright highlights on the glass, the wet fruit, and the surface of the drink, giving it a glossy, appealing look.
-Isolated Subject: The entire cocktail is presented against a solid, non-reflective black background, which makes the vibrant colors of the drink and garnish stand out sharply.`,
-  `Objects, Props, and Items:
-Sunglasses: The central object is a single pair of sunglasses.
-Distinct Visual Elements:
-Frames: The frames are thick, chunky, and made of a glossy black plastic or acetate. They have a bold, squared-off rectangular shape with slightly softened corners.
-Nose Bridge: The nose bridge is molded as part of the frame, with a distinct, smooth curve connecting the two lens sockets.
-Lenses: The lenses are a vibrant, translucent, solid orange or deep amber color. They are not gradient or mirrored.
-Temple Arms (Arms): The temple arms are thick and robust, matching the black, glossy finish of the main frame. In some crops, a hint of a brownish inner core or detail can be seen through the semi-transparent part of the plastic near the hinge.
-White Outline: A very thin, crisp white outline has been added around the sunglasses, separating them sharply from the black background.
-Isolated Background: The sunglasses are presented against a completely flat, non-reflective black background.`,
-  `Objects, Props, and Items:
-Baseball Cap: The single object is a classic, unadorned baseball cap.
-Distinct Visual Elements:
-Vibrant Orange Color: The entire cap, including the crown, brim, and button, is a solid, bright, saturated orange color.
-Multi-Panel Construction: The crown of the cap is constructed from multiple fabric panels, with visible stitching along the seams that converge at the top.
-Fabric-Covered Button: A small, self-fabric-covered button (squatchee) is situated at the very top of the crown where the panels meet.
-Curved Brim: The cap features a standard, pre-curved brim or visor extending from the front.
-Fabric Texture: The cap is made from a solid, non-shiny fabric, likely a cotton twill, with a subtle woven texture visible upon close inspection.
-Blank Front: The front of the cap is completely plain, with no logos, text, or embroidery.
-Isolated Presentation: The cap is photographed against a solid black background, isolating it completely.`,
-  `Objects, Props, and Items:
-Laptop Computer: The image features a modern, thin laptop, identifiable as an Apple MacBook by its shape and the logo on the lid. It is positioned partially open.
-Protective Hard Case: The laptop is fitted with a two-piece, clip-on protective hard case.
-Laptop Keyboard: A portion of the laptop's keyboard is visible, showing a silver or light gray base with dark-colored keys.
-Distinct Visual Elements:
-Bright Orange Color: The protective case is a solid, vibrant, and saturated shade of orange.
-Matte/Frosted Texture: The surface of the orange case has a matte or slightly frosted, non-glossy texture.
-Apple Logo Cutout: The case features a precise cutout in the shape of the Apple logo, revealing the original logo on the laptop's lid beneath it. The logo itself appears white or light silver.
-Case Feet: Small, raised, orange-colored feet are visible on the bottom corners of the case, designed to lift the laptop slightly off a surface.
-Isolated Background: The laptop is displayed against a plain, solid black background, which makes the orange color stand out.`,
+  `add in the background, behind the person, a tropical beach with a thatched umbrella and two modern lounge chairs on pristine white sand. Turquoise ocean water fades to deep blue. Bright blue sky with scattered white clouds. Vivid, clean, sunny, paradise vacation aesthetic.`,
+  `add in the background, behind the person, two tall palm trees on the right side of a sunlit tropical beach, casting long, spiky shadows on soft sand. Highly saturated colors, crisp lighting, clear blue sky. Picture-perfect, high-definition travel photography style.`,
+  `add a vibrant pink blended cocktail, next to the person or in the person's hands, in a coupe glass with a long clear stem. The drink has a frothy, slushy texture with a light foam on top. A clear skewer rests across the glass, holding fresh red strawberry slices, a yellow pineapple chunk, a green kiwi slice with visible seeds, and a small caramel candy with a geometric pattern. Bright, glossy studio lighting highlights the fruit and glass, making colors pop vividly.`,
+  `Add on the persons face, a single pair of bold, rectangular sunglasses with thick, glossy black frames and vibrant solid orange lenses. The molded nose bridge curves smoothly between the lenses. Thick temple arms match the black finish, with a hint of brown inner detail near the hinge.`,
+  `add on the persons head a single, classic baseball cap in solid, vibrant orange. It has a curved brim, multi-panel crown with visible stitching, and a fabric-covered button at the top. Made of matte cotton twill with subtle woven texture. The front is completely blank, with no logos or text.`,
+  `Add on the persons lap an open Apple MacBook with a vibrant orange, matte-finish hard case. The case has a cutout revealing the white AE logo on the lid.`,
 ];
 
 const PREGENERATED_TERMINAITOR_THEME_DESCRIPTIONS: string[] = [ // Renamed from PREGENERATED_CHAOS_THEME_DESCRIPTIONS
-  `Specific Objects, Props, and Visual Elements:
-The image is a close-up of a highly detailed, metallic humanoid endoskeleton, famously recognized as the T-800 from the Terminator franchise.
-Endoskeleton Head: The head is a terrifyingly accurate robotic replica of a human skull.
-Material and Texture: It is constructed from a dark, polished-yet-grimy chrome-like metal. The surface is not perfectly smooth; it is weathered, scratched, and pitted, suggesting heavy use and combat.
-Optical Sensors: Set deep within the eye sockets are two intensely glowing red optical sensors. They serve as the focal point and primary source of menace.
-Teeth: The mouth is fixed in a grimace, revealing a full set of individually articulated, chrome-plated teeth that mimic human dentition.
-Jaw and Facial Mechanics: The jaw, cheekbones, and temple area are a complex assembly of interlocking plates, hydraulic pistons, and actuators, all visible and purely functional.
-Endoskeleton Torso and Neck: The visible portion of the upper torso and neck reveals the inner workings of the machine.
-Neck Pistons: The neck is a thick column of powerful hydraulic pistons and reinforced, flexible conduits that allow the head to move.
-Chassis: The shoulder and chest area is an exposed chassis of interlocking structural components, more pistons, and layered metal plates. The design is entirely utilitarian and industrial, with no aesthetic covering.
-Overall Artistic Style:
-The style is '80s Dystopian Sci-Fi and Industrial Futurism. It is gritty, dark, and menacing. The design philosophy emphasizes brutal functionality over aesthetics, creating a sense of raw, terrifying power. The weathered, oily look of the metal and the raw mechanical components define this iconic, grim-future aesthetic.
-Elements for a New Background:
-Post-Apocalyptic Ruins: The classic setting for this machine. A background of a desolate, ruined city at night would be perfect. Elements could include piles of rubble, twisted steel rebar, shattered concrete, and human skulls being crushed underfoot.
-Skynet Factory/Assembly Line: A dark, hellish industrial factory. The background could be filled with massive machinery, robotic arms welding endoskeleton parts, and conveyor belts carrying legions of identical units. The only light could come from sparks, molten metal, and the ubiquitous red glow of thousands of optical sensors.
-Fire and Embers: A background of raging fires, burning buildings, and a landscape lit by the orange glow of destruction would complement the red eyes and the machine's purpose. Fields of glowing embers on the ground could add to the atmosphere.
-Industrial Machinery: A close-up, abstract background focusing on the same design language: massive, moving pistons, turning gears, and a network of pipes and girders, all made from the same dark, grimy chrome.
-Fields of Red Lights: A simple but effective background could be a dark, indistinct space filled with countless pairs of glowing red eyes, suggesting an entire army of Terminators standing in the darkness, waiting to be activated.`,
+  `add in the background, behind the person, gritty, post-apocalyptic night scene with burning rubble, twisted steel, scattered skulls, and glowing embers. 1980s dystopian sci-fi style, industrial futurism, cinematic lighting, dark and menacing atmosphere.`,
   `Specific Objects, Props, and Visual Elements:
 The image contains several pieces of practical, tactical gear and a weapon.
 Assault Rifle: The primary object is an assault rifle, appearing to be an AKM or a similar variant from the AK-47 family.

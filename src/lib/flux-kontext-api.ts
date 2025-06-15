@@ -49,9 +49,12 @@ export async function pollKontextResult(requestId: string): Promise<string> {
     const status = response.data.status;
     if (status === 'Ready') {
       return response.data.result.sample;
+    } else if (status === 'Request Moderated') {
+      throw new Error(`Image generation request was moderated. Request ID: ${requestId}`);
     } else if (status !== 'Processing' && status !== 'Queued' && status !== 'Pending') {
       throw new Error(`Unexpected status: ${status}`);
     }
+    // If status is 'Processing', 'Queued', or 'Pending', the loop continues.
   }
 }
 
