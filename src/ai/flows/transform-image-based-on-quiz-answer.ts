@@ -54,7 +54,8 @@ const transformImageFlow = ai.defineFlow(
       prompt += ` The theme is described as: ${input.referenceThemeDescription}.`;
     }
 
-    prompt += ` Please preserve the user's face, body, and pose. The user should not be altered.`;
+    //prompt += ` Please preserve the user's face, body, and pose. The user should not be altered.`;
+    prompt += ` Please preserve the user's face.`;
 
     const base64Image = input.photoDataUri.split(',')[1];
 

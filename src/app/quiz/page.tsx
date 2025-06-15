@@ -28,7 +28,7 @@ const PREGENERATED_TERMINAETOR_THEME_DESCRIPTIONS: string[] = [
 const PREGENERATED_TERMINAITOR_THEME_DESCRIPTIONS: string[] = [
   `edit the image and add in the background, behind the person, a post-apocalyptic night scene with burning rubble, twisted steel, and glowing embers. 1980s dystopian sci-fi style, industrial futurism, cinematic lighting, dark and menacing atmosphere.`,
   `edit the image and add in the terminator-like robots with red gloawing eyes running towards the person in the forground.`,
-  `edit the image and Add in the background one tough, athletic woman talking in a walkie-talkie. She wears dark tactical pants with a belt of gear, a fitted black tank top, and dark sunglasses. Her hair is in a pony tail, and she has a focused, battle-ready stance.`,
+  `edit the image and Add in the background one tough, athletic woman. She wears dark tactical pants with a belt of gear, a fitted black tank top, and dark sunglasses. Her hair is in a pony tail, and she has a focused, battle-ready stance. She is wrestling with a terminator-like robot.`,
   `edit the image and dress the person or robot in the foreground with a worn black leather motorcycle jacket and dark square sunglasses. He sits on  a black motorcycle, partially visible, with chrome detailing and a low-slung frame. `,
   `edit the image and change the person into a metallic humanoid endoskeleton, resembling the T-800 from Terminator. The head is a chrome skull with glowing red eyes, weathered and scratched, with exposed pistons and chrome-plated teeth in a grimace. Visible torso and neck show raw mechanical components, thick neck pistons, and industrial plating.`,
 ];
