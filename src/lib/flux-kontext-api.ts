@@ -49,8 +49,9 @@ export async function pollKontextResult(requestId: string): Promise<string> {
     const status = response.data.status;
     if (status === 'Ready') {
       return response.data.result.sample;
-    } else if (status !== 'Processing' && status !== 'Queued') {
+    } else if (status !== 'Processing' && status !== 'Queued' && status !== 'Pending') {
       throw new Error(`Unexpected status: ${status}`);
     }
   }
 }
+
