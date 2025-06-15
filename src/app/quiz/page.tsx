@@ -26,7 +26,8 @@ const PREGENERATED_TERMINAETOR_THEME_DESCRIPTIONS: string[] = [
 ];
 
 const PREGENERATED_TERMINAITOR_THEME_DESCRIPTIONS: string[] = [ // Renamed from PREGENERATED_CHAOS_THEME_DESCRIPTIONS
-  `add in the background, behind the person, gritty, post-apocalyptic night scene with burning rubble, twisted steel, scattered skulls, and glowing embers. 1980s dystopian sci-fi style, industrial futurism, cinematic lighting, dark and menacing atmosphere.`,
+  `add in the background, behind the person, a post-apocalyptic night scene with burning rubble, twisted steel, and glowing embers. 1980s dystopian sci-fi style, industrial futurism, cinematic lighting, dark and menacing atmosphere.`,
+  `turn the right half of the person in the picture into a metallic humanoid endoskeleton, resembling the T-800 from Terminator. The head is a chrome skull with glowing red eyes, weathered and scratched, with exposed pistons and chrome-plated teeth in a grimace. Visible torso and neck show raw mechanical components, thick neck pistons, and industrial plating.`,
   `Specific Objects, Props, and Visual Elements:
 The image contains several pieces of practical, tactical gear and a weapon.
 Assault Rifle: The primary object is an assault rifle, appearing to be an AKM or a similar variant from the AK-47 family.
@@ -177,12 +178,23 @@ export default function QuizPage() {
     } catch (err) {
       console.error("AI processing error:", err);
       const errorMessage = err instanceof Error ? err.message : "Unknown AI error";
-      setError(`AI ERROR: ${errorMessage}`);
-      toast({
-        title: "AI Processing Error",
-        description: `Could not process your choice: ${errorMessage}`,
-        variant: "destructive",
-      });
+      
+      if (errorMessage.toLowerCase().includes("moderated")) {
+        setError("CONTENT MODERATED: Your image transformation was flagged by our safety system. Please try a different image or choice.");
+        toast({
+          title: "Content Moderated",
+          description: "The image transformation was flagged by our safety system. Please try a different approach.",
+          variant: "destructive",
+          duration: 7000, 
+        });
+      } else {
+        setError(`AI ERROR: ${errorMessage}`);
+        toast({
+          title: "AI Processing Error",
+          description: `Could not process your choice: ${errorMessage}`,
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
       setTimeout(() => setShowGlitch(false), 500); 
