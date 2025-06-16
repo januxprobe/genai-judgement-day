@@ -26,9 +26,10 @@ const PREGENERATED_TERMINAETOR_THEME_DESCRIPTIONS: string[] = [
 
 const PREGENERATED_TERMINAITOR_THEME_DESCRIPTIONS: string[] = [
   `add in the background, behind the person, a post-apocalyptic night scene with burning rubble, twisted steel, and glowing embers. 1980s dystopian sci-fi style, industrial futurism, cinematic lighting, dark and menacing atmosphere.`,
-  `add in the terminator-like robots with red gloawing eyes running towards the person in the forground.`,
-  `add in the background one tough, athletic woman. She wears dark tactical pants with a belt of gear, a fitted black tank top, and dark sunglasses. Her hair is in a pony tail, and she has a focused, battle-ready stance. She is wrestling with a terminator-like robot.`,
-  `add a worn black leather motorcycle jacket and dark square sunglasses to the person or robot. He sits on  a black motorcycle, partially visible, with chrome detailing and a low-slung frame. `,
+  `add in the background a terminator-like robots with red gloawing eyes running towards the person in the forground.`,
+  `add in the background a large, black semi-truck with a shattered windshield and heavy front-end damage with a terminator-like robot with glowing red eyes crwaling over it. Gritty, fast-paced, '90s action movie style with intense motion`,
+  //`add in the background one tough, athletic woman. She wears dark tactical pants with a belt of gear, a fitted black tank top, and dark sunglasses. Her hair is in a pony tail, and she has a focused, battle-ready stance. She is wrestling with a terminator-like robot.`,
+  `add a worn black leather motorcycle jacket and dark square sunglasses to the person or robot in the foreground. He sits on  a black motorcycle, partially visible, with chrome detailing and a low-slung frame. `,
   `change the person into a metallic humanoid endoskeleton, resembling the T-800 from Terminator. The head is a chrome skull with glowing red eyes, weathered and scratched, with exposed pistons and chrome-plated teeth in a grimace. Visible torso and neck show raw mechanical components, thick neck pistons, and industrial plating.`,
 ];
 
