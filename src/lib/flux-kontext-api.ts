@@ -33,7 +33,7 @@ export async function createKontextRequest(prompt: string, input_image: string):
 
 export async function pollKontextResult(requestId: string): Promise<string> {
   while (true) {
-    await new Promise(resolve => setTimeout(resolve, 1500)); // wait for 1.5 seconds
+    await new Promise(resolve => setTimeout(resolve, 5000)); // wait for 1.5 seconds
 
     const response = await axios.get(`${API_URL}/get_result?id=${requestId}`, {
       headers: {
